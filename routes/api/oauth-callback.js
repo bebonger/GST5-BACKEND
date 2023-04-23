@@ -90,18 +90,18 @@ function getUser(access_token, res) {
             );
             
             
-            res.cookie("user_token", {token, user}, {
+            res.cookie("user_token", token, {
                 httpOnly: false,
                 secure: true,
                 sameSite: "none",
                 maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                domain: isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI
+                // domain: isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI
             });
             
             res.redirect(isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI);
 
-            // console.log(token);
-            // console.log(isDevelopment);
+            console.log("token: " + token + "\n");
+            console.log(isDevelopment);
             // console.log(environment);
             
             
