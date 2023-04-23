@@ -1,7 +1,10 @@
+var environment = process.env.NODE_ENV
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const session = require("express-session")
+const cookieParser = require("cookie-parser");
 
 // dotenv
 require("dotenv").config();
@@ -12,6 +15,7 @@ const app = express();
 app.use(cors({origin: true, credentials: true}));
 app.use(morgan("common"));
 app.use(express.json());
+app.use(cookieParser());
 app.use(session(
   {
     secret: process.env.CLIENT_SECRET, // don't use this secret in prod :)
@@ -19,7 +23,7 @@ app.use(session(
     saveUninitialized: false,
     cookie: {
       secure: 'auto',
-      httpOnly: true,
+      httpOnly: false,
       maxAge: 3600000
     }
   })
