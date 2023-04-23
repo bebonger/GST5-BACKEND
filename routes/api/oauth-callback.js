@@ -4,6 +4,7 @@ const axios = require("axios").default;
 const qs = require("query-string");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const passport = require("passport");
 
 const environment = process.env.NODE_ENV
 const url = `https://osu.ppy.sh/oauth/token`;
@@ -26,6 +27,9 @@ router.get("/", (req, res) => {
     res.redirect(302, '/');
     return;
   }
+
+  
+
   //post request to /token endpoint
   axios
     .post(
@@ -43,7 +47,7 @@ router.get("/", (req, res) => {
 
         // save token to session
         req.session.token = result.data.access_token;
-        console.log(result)
+        // console.log(result)
 
         getUser(result.data.access_token, res);
     })
@@ -62,7 +66,7 @@ function getUser(access_token, res) {
         }
     })
     .then((result) => {
-        console.log(result);
+        // console.log(result);
 
         try {
             const user = {
@@ -75,7 +79,7 @@ function getUser(access_token, res) {
                 country_rank: result.data.statistics.country_rank
             };
 
-            console.log(user);
+            // console.log(user);
 
             const token = jwt.sign(
                 user, 
@@ -96,9 +100,9 @@ function getUser(access_token, res) {
             
             res.redirect(isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI);
 
-            console.log(token);
-            console.log(isDevelopment);
-            console.log(environment);
+            // console.log(token);
+            // console.log(isDevelopment);
+            // console.log(environment);
             
             
         } 
