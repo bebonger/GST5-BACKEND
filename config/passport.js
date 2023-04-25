@@ -14,3 +14,15 @@ passport.use('osu', new OsuStrategy({
         done(null, profile); // passes the profile data to serializeUser
     }
 ));
+
+passport.serializeUser(function(user, cb) {
+    process.nextTick(function() {
+        console.log("authenticated user: " + user + "\n")
+    });
+});
+
+passport.deserializeUser(function(user, cb) {
+    process.nextTick(function() {
+        return cb(null, user);
+    });
+});

@@ -6,11 +6,14 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 
-const environment = process.env.NODE_ENV
+// models
+const userModel = require("../../models/user-model")
+
+// env variables
+const environment = process.env.NODE_ENV;
 const url = `https://osu.ppy.sh/oauth/token`;
 const meEndpoint = `https://osu.ppy.sh/api/v2/me/osu`;
-
-var isDevelopment = environment == 'development';
+const isDevelopment = environment == 'development';
 
 const config = {
   headers: {
@@ -27,8 +30,6 @@ router.get("/", (req, res) => {
     res.redirect(302, '/');
     return;
   }
-
-  
 
   //post request to /token endpoint
   axios
@@ -49,14 +50,14 @@ router.get("/", (req, res) => {
         req.session.token = result.data.access_token;
         // console.log(result)
 
-        getUser(result.data.access_token, res);
+        getUser(result.data.access_token, req, res);
     })
     .catch((err) => {
         console.error(err);
     });
 });
 
-function getUser(access_token, res) {
+function getUser(access_token, req, res) {
     // request user data through /me endpoint
     axios.get(meEndpoint, {            
         headers: {
@@ -66,44 +67,35 @@ function getUser(access_token, res) {
         }
     })
     .then((result) => {
-        // console.log(result);
+        console.log(result);
 
         try {
-            const user = {
-                avatar_url: result.data.avatar_url,
-                country_code: result.data.country_code,
-                id: result.data.id,
-                username: result.data.username,
-                is_restricted: result.data.is_restricted,
-                global_rank: result.data.statistics.global_rank,
-                country_rank: result.data.statistics.country_rank
-            };
-
-            // console.log(user);
-
-            const token = jwt.sign(
-                user, 
-                process.env.CLIENT_SECRET,
+            var user = new userModel(
                 {
-                    expiresIn: "24h"
+                    sessionID: req.sessionID,
+                    userData: {
+                        avatar_url: result.data.avatar_url,
+                        country_code: result.data.country_code,
+                        default_group: result.data.default_group,
+                        id: result.data.id,
+                        is_active: result.data.is_active,
+                        is_bot: result.data.is_bot,
+                        is_deleted: result.data.is_deleted,
+                        username: result.data.username,
+                        is_restricted: result.data.is_restricted,
+                        global_rank: result.data.statistics.global_rank,
+                        country_rank: result.data.statistics.country_rank,
+                        badges: result.data.badges.length
+                    }
                 }
-            );
+            )
+
+            console.log(user);
             
-            
-            res.cookie("user_token", token, {
-                httpOnly: false,
-                secure: true,
-                sameSite: "none",
-                maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                // domain: isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI
-            });
+            // add user to table of authenticated users
+            user.save();
             
             res.redirect(isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI);
-
-            console.log("token: " + token + "\n");
-            console.log(isDevelopment);
-            // console.log(environment);
-            
             
         } 
         catch (err) {

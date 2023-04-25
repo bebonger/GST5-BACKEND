@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const userModel = require("../../models/user-model")
 
 // user will only get to this route if their cookie has not expired
-router.post('/', (req, res) => {
-    console.log(req.body);
-    console.log("incoming token: " + req.body.token + "\n")
-    const decodedToken = jwt.verify(req.body.token, process.env.CLIENT_SECRET);
-    console.log(decodedToken);
-    res.json(decodedToken);
+router.get('/', async (req, res) => {
+    const User = userModel;
+    const user = await User.findOne({'sessionID' : req.sessionID}, 'userData').exec();
+    console.log(user.userData);
+    res.json(user.userData);
+
 });
 
 module.exports = router;
