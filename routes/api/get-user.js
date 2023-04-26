@@ -8,8 +8,11 @@ const userModel = require("../../models/user-model")
 router.get('/', async (req, res) => {
     const User = userModel;
     const user = await User.findOne({'sessionID' : req.sessionID}, 'userData').exec();
-    console.log(user.userData);
-    res.json(user.userData);
+    if (user) {
+        console.log(user.userData);
+        req.flash("test");
+        res.json(user.userData);
+    }
 
 });
 

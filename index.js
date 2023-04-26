@@ -8,6 +8,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
+const flash = require("express-flash");
 
 // dotenv
 require("dotenv").config();
@@ -22,6 +23,7 @@ async function main() {
     app.use(morgan("common"));
     app.use(express.json());
     app.use(cookieParser());
+    app.use(flash());
     app.use(session({
         secret: process.env.CLIENT_SECRET, // don't use this secret in prod :)
         resave: false,
@@ -30,7 +32,7 @@ async function main() {
         cookie: {
             secure: false,
             httpOnly: true,
-            maxAge: 3600000
+            maxAge: 36000000
         }})
     );
 

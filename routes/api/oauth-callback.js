@@ -22,34 +22,26 @@ const config = {
 };
 
 router.get("/", (req, res) => {
-// State from Server
-  const stateFromServer = req.query.state;
-  if (stateFromServer !== req.session.stateValue) {
+    // State from Server
+    const stateFromServer = req.query.state;
+    if (stateFromServer !== req.session.stateValue) {
     console.log("State doesn't match. uh-oh.");
     console.log(`Saw: ${stateFromServer}, but expected: &{req.session.stateValue}`);
     res.redirect(302, '/');
     return;
-  }
+    }
 
-  //post request to /token endpoint
-  axios
-    .post(
-        url,
-        qs.stringify({
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET,
-            code: req.query.code,
-            grant_type: "authorization_code",
-            redirect_uri: process.env.REDIRECT_URI,
-        }),
-        config
-    )
+    //post request to /token endpoint
+    axios.post(url, qs.stringify({
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        code: req.query.code,
+        grant_type: "authorization_code",
+        redirect_uri: process.env.REDIRECT_URI,
+    }), config)
     .then((result) => {
-
         // save token to session
         req.session.token = result.data.access_token;
-        // console.log(result)
-
         getUser(result.data.access_token, req, res);
     })
     .catch((err) => {
@@ -57,54 +49,60 @@ router.get("/", (req, res) => {
     });
 });
 
-function getUser(access_token, req, res) {
+async function getUser(access_token, req, res) {
     // request user data through /me endpoint
-    axios.get(meEndpoint, {            
+    const result = await axios.get(meEndpoint, {            
         headers: {
             "Authorization": `Bearer ` + access_token,
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
     })
-    .then((result) => {
-        console.log(result);
 
-        try {
-            var user = new userModel(
-                {
-                    sessionID: req.sessionID,
-                    userData: {
-                        avatar_url: result.data.avatar_url,
-                        country_code: result.data.country_code,
-                        default_group: result.data.default_group,
-                        id: result.data.id,
-                        is_active: result.data.is_active,
-                        is_bot: result.data.is_bot,
-                        is_deleted: result.data.is_deleted,
-                        username: result.data.username,
-                        is_restricted: result.data.is_restricted,
-                        global_rank: result.data.statistics.global_rank,
-                        country_rank: result.data.statistics.country_rank,
-                        badges: result.data.badges.length
-                    }
-                }
-            )
+    if (!result) {
+        throw 'user not found or error or something';
+    }
 
-            console.log(user);
-            
-            // add user to table of authenticated users
-            user.save();
-            
-            res.redirect(isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI);
-            
-        } 
-        catch (err) {
-            console.log(err);
-        }  
+    console.log(result);
+    try {
+        const user = userModel;
+        data = {
+            userID: result.data.id,
+            sessionID: req.sessionID,
+            userData: {
+                avatar_url: result.data.avatar_url,
+                country_code: result.data.country_code,
+                default_group: result.data.default_group,
+                id: result.data.id,
+                is_active: result.data.is_active,
+                is_bot: result.data.is_bot,
+                is_deleted: result.data.is_deleted,
+                username: result.data.username,
+                is_restricted: result.data.is_restricted,
+                global_rank: result.data.statistics.global_rank,
+                country_rank: result.data.statistics.country_rank,
+                badges: result.data.badges.length
+            }
+        }
+    
+        // console.log(user);
+        
+        // TODO: Check for existing doc in Mongo, update if exists, insert if doesnt
 
-    }).catch(err => {
+        // add user to table of authenticated users
+        var query = { userID: user.userID };
+        var options = { upsert: true, new: true, setDefaultsOnInsert: true};
+
+        const userObj = await user.findOneAndUpdate(query, data, options);
+        console.log(userObj);
+
+        req.flash("test");
+        res.redirect(isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI);
+        
+    } 
+    catch (err) {
         console.log(err);
-    });
+    }  
 }
 
 module.exports = router;
