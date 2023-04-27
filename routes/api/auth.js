@@ -11,6 +11,7 @@ router.get('/',
     passport.authenticate('osu', { 
       session: true,
       scope: ['public', 'identify'],  
+      successRedirect: process.env.REDIRECT_URI
   }),
 );
 module.exports = router;

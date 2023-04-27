@@ -63,7 +63,7 @@ async function getUser(access_token, req, res) {
         throw 'user not found or error or something';
     }
 
-    console.log(result);
+    // console.log(result);
     try {
         const user = userModel;
         data = {
@@ -93,8 +93,19 @@ async function getUser(access_token, req, res) {
         var query = { userID: user.userID };
         var options = { upsert: true, new: true, setDefaultsOnInsert: true};
 
-        const userObj = await user.findOneAndUpdate(query, data, options);
-        console.log(userObj);
+        // const userObj = await user.findOneAndUpdate(query, { $set: { userData: data.userData, sessionID: data.sessionID, userID: data.userID  } }, options);
+        const doc = await user.findOne({ userID: data.userID });
+        if (doc) {
+            doc.userData = data.userData;
+            doc.sessionID = data.sessionID;
+            doc.save();
+            console.log(doc);
+        } else {
+            doc = new user({
+                data                
+            })
+            console.log(await doc.save()); 
+        }
 
         req.flash("test");
         res.redirect(isDevelopment ? process.env.FRONTEND_DEVELOPMENT_URI : process.env.FRONTEND_PRODUCTION_URI);
