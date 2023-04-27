@@ -102,7 +102,22 @@ async function getUser(access_token, req, res) {
             console.log(doc);
         } else {
             doc = new user({
-                data                
+                userID: result.data.id,
+                sessionID: req.sessionID,
+                userData: {
+                    avatar_url: result.data.avatar_url,
+                    country_code: result.data.country_code,
+                    default_group: result.data.default_group,
+                    id: result.data.id,
+                    is_active: result.data.is_active,
+                    is_bot: result.data.is_bot,
+                    is_deleted: result.data.is_deleted,
+                    username: result.data.username,
+                    is_restricted: result.data.is_restricted,
+                    global_rank: result.data.statistics.global_rank,
+                    country_rank: result.data.statistics.country_rank,
+                    badges: result.data.badges.length
+                }              
             })
             console.log(await doc.save()); 
         }
