@@ -94,7 +94,7 @@ async function getUser(access_token, req, res) {
         var options = { upsert: true, new: true, setDefaultsOnInsert: true};
 
         // const userObj = await user.findOneAndUpdate(query, { $set: { userData: data.userData, sessionID: data.sessionID, userID: data.userID  } }, options);
-        const doc = await user.findOne({ userID: data.userID });
+        let doc = await user.findOne({ userID: data.userID });
         if (doc) {
             doc.userData = data.userData;
             doc.sessionID = data.sessionID;
