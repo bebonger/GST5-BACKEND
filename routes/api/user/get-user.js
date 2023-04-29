@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const userModel = require("../../models/user-model")
+const userModel = require("../../../models/user-model");
 
 // user will only get to this route if their cookie has not expired
 router.get('/', async (req, res) => {

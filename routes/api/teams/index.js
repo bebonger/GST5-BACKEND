@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-router.use('/user', require('./user'));
-router.use('/teams', require('./teams'));
+router.use('/get-teams', require('./get-teams'));
 
 module.exports = router;

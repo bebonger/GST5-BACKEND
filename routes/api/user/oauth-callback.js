@@ -7,12 +7,12 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 
 // models
-const userModel = require("../../models/user-model")
+const userModel = require("../../../models/user-model")
 
 // env variables
 const environment = process.env.NODE_ENV;
 const url = `https://osu.ppy.sh/oauth/token`;
-const meEndpoint = `https://osu.ppy.sh/api/v2/me/osu`;
+const meEndpoint = `https://osu.ppy.sh/api/v2/me/osu`; 
 const isDevelopment = environment == 'development';
 
 const config = {
