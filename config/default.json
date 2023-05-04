@@ -1,0 +1,28 @@
+{
+    "discord": {
+        "clientId": "1102978438106722437",
+        "clientSecret": "gCdWoe4uHLf-AJulvesRBCIFfMrbG_r_",
+        "token": "MTEwMjk3ODQzODEwNjcyMjQzNw.Gb6GfZ.qmG7gLGhq9SuaIpXA_OqwpI71_khlkAIi0LPwc",
+        "guild": 583960328631615508
+    },
+    "osu": {
+        "v2": {
+            "clientId": 21825,
+            "clientSecret": "ErDA7S83jOdGMVPeJbFGpCoLqS9iKd69ylPvuBFN"
+        }
+    },
+    "gst5": {
+        "publicUrl": "https://gst5.osu.sg"
+    },
+    "api": {
+        "publicUrl": "http://localhost:5173"
+    },
+    "database": {
+        "host": "127.0.0.1",
+        "port": 27017,
+        "database": "gst5",
+        "url": "mongodb://127.0.0.1:27017/gst5"
+    },
+    "secretKey": "dhYzr9fLi0funPJBeGk4iwJVULf6Dv6P",
+    "config.cookiesDomain": "http://localhost:5713"
+}
