@@ -9,7 +9,7 @@ interface discordRoleInfo {
 
 // General middlewares
 async function isLoggedIn (ctx: ParameterizedContext, next: Next): Promise<void> {
-    if (!ctx.state.user) {
+    if (!ctx.session.state.user) {
         ctx.body = { error: "User is not logged in via osu!" };
         return;
     }
@@ -18,7 +18,7 @@ async function isLoggedIn (ctx: ParameterizedContext, next: Next): Promise<void>
 }
 
 async function isLoggedInDiscord (ctx: ParameterizedContext, next: Next): Promise<void> {
-    if (!ctx.state.user?.discord?.userID) {
+    if (!ctx.session.state.user?.discord?.userID) {
         ctx.body = { error: "User is not logged in via discord!" };
         return; 
     }

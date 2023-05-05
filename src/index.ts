@@ -47,7 +47,6 @@ app.use(Session({
     httpOnly: true,
     renew: true,
     maxAge: 60 * 24 * 60 * 60 * 1000, // 2 months
-    rolling: true,
     signed: true,
     store: new MongooseStore()
 }, app));
