@@ -1,4 +1,4 @@
-import { OsuUser, UserDiscord } from './Models/user';
+import { OsuUser, DiscordUser } from './Models/user';
 import { config } from "node-config-ts";
 import { getMember } from "./discord";
 import { ParameterizedContext, Next } from "koa";

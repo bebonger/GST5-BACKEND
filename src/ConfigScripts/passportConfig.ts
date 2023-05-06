@@ -2,7 +2,7 @@ import passport from "koa-passport";
 import { config } from "node-config-ts";
 import { Strategy as DiscordStrategy } from "passport-discord";
 import OAuth2Strategy from "passport-oauth2";
-import { OsuUser, UserDiscord } from "../Models/user";
+import { OsuUser, DiscordUser } from "../Models/user";
 import Axios from "axios";
 import { discordClient } from "../discord";
 import { FindOneOptions, FindOptionsWhere } from 'typeorm';
@@ -54,12 +54,12 @@ export function setupPassport () {
 
 export async function discordPassport (accessToken: string, refreshToken: string, profile: DiscordStrategy.Profile, done: OAuth2Strategy.VerifyCallback): Promise<void> {
     try {
-        let userDiscord = await UserDiscord.findOne({ where: {
+        let userDiscord = await DiscordUser.findOne({ where: {
             discordID: profile.id
         }});
 
         if (!userDiscord) {
-            userDiscord = new UserDiscord;
+            userDiscord = new DiscordUser;
             userDiscord.discordID = profile.id;
         }
 
@@ -67,7 +67,7 @@ export async function discordPassport (accessToken: string, refreshToken: string
         userDiscord.avatar = "https://cdn.discordapp.com/avatars/" + profile.id + "/" + profile.avatar + ".png",
         userDiscord.last_verified = new Date;
 
-        await UserDiscord.upsert(userDiscord, { conflictPaths: ['discordID'] });
+        await DiscordUser.upsert(userDiscord, { conflictPaths: ['discordID'] });
 
         done(null, userDiscord);
     } catch(error: any) {

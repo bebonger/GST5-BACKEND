@@ -3,7 +3,7 @@ import { DataSourceOptions } from "typeorm";
 import { resolve } from "path";
 
 // Entities
-import { OsuUser, UserDiscord } from "../Models/user"
+import { OsuUser, DiscordUser } from "../Models/user"
 
 export default {
     type: "postgres",
@@ -20,7 +20,7 @@ export default {
        // `${resolve(__dirname, "Models")}/**/*.ts`,
         //`${resolve(__dirname, "Models")}/**/*.js`,
         OsuUser,
-        UserDiscord
+        DiscordUser
     ],
     cache: {
         duration: 60000,

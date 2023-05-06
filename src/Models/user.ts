@@ -6,7 +6,7 @@ import { stringify } from 'querystring';
 import { config } from "node-config-ts";
 
 @Entity()
-export class UserDiscord extends BaseEntity {
+export class DiscordUser extends BaseEntity {
     @PrimaryColumn()
     discordID!: string;
 
@@ -46,9 +46,9 @@ export class OsuUser extends BaseEntity {
     @Column({ length: 2, nullable: false })
     country_code!: string;
 
-    @OneToOne(() => UserDiscord)
+    @OneToOne(() => DiscordUser)
     @JoinColumn()
-    discord!: UserDiscord;
+    discord!: DiscordUser;
 
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     last_verified!: Date;
