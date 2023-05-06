@@ -2,25 +2,28 @@ import passport from "koa-passport";
 import { config } from "node-config-ts";
 import { Strategy as DiscordStrategy } from "passport-discord";
 import OAuth2Strategy from "passport-oauth2";
-import { User, OAuth } from "../Models/user";
+import { OsuUser, UserDiscord } from "../Models/user";
 import Axios from "axios";
 import { discordClient } from "../discord";
 import { FindOneOptions, FindOptionsWhere } from 'typeorm';
 
 export function setupPassport () {
     // Setup passport
-    passport.serializeUser((user: User, done) => {
-        done(null, user.ID);
+    passport.serializeUser((user: OsuUser, done: CallableFunction) => {
+        if (user && user.userID > 0) {
+            done(null, user.userID);
+        } else {
+            console.error('Something happened while serializing the user', user);
+            done('An error has occured! Please refresh the page and try again.');
+        }
     });
 
-    passport.deserializeUser(async (id: number, done) => {
+    passport.deserializeUser(async (id: number, done: CallableFunction) => {
         if (!id) return done(null, null);
 
         try {
-            const user = await User.findOne({
-                where: {
-                    ID: id
-                }
+            const user = await OsuUser.findOne({
+                where: { userID: Number(id) },
             });
             if (user)
                 done(null, user);
@@ -51,28 +54,22 @@ export function setupPassport () {
 
 export async function discordPassport (accessToken: string, refreshToken: string, profile: DiscordStrategy.Profile, done: OAuth2Strategy.VerifyCallback): Promise<void> {
     try {
-        const findOptions: FindOneOptions<User> = {
-            where: {
-              'discord.userID': profile.id,
-            } as FindOptionsWhere<User>,
-        };
-        let user = await User.findOne(findOptions);
+        let userDiscord = await UserDiscord.findOne({ where: {
+            discordID: profile.id
+        }});
 
-        if (!user)
-        {
-            user = new User;
-            user.discord = new OAuth;
-            user.discord.dateAdded = user.registered = new Date;
+        if (!userDiscord) {
+            userDiscord = new UserDiscord;
+            userDiscord.discordID = profile.id;
         }
 
-        user.discord.userID = profile.id;
-        user.discord.username = `${profile.username}#${profile.discriminator}`;
-        user.discord.accessToken = accessToken;
-        user.discord.refreshToken = refreshToken;
-        user.discord.avatar = (await discordClient.users.fetch(profile.id)).displayAvatarURL();
-        user.lastLogin = user.discord.lastVerified = new Date;
+        userDiscord.username = profile.username;
+        userDiscord.avatar = "https://cdn.discordapp.com/avatars/" + profile.id + "/" + profile.avatar + ".png",
+        userDiscord.last_verified = new Date;
 
-        done(null, user);
+        await UserDiscord.upsert(userDiscord, { conflictPaths: ['discordID'] });
+
+        done(null, userDiscord);
     } catch(error: any) {
         console.log("Error while authenticating user via Discord", error);
         done(error, undefined);
@@ -88,27 +85,26 @@ export async function osuPassport (accessToken: string, refreshToken: string, pr
         });
 
         const userProfile = res.data;
-        const findOptions: FindOneOptions<User> = {
-            where: {
-              'osu.userID': userProfile.id,
-            } as FindOptionsWhere<User>,
-        };
-        let user = await User.findOne(findOptions);
+        let user = await OsuUser.findOne({ where: {
+            userID: userProfile.id
+        }});
 
         if (!user) {
-            user = new User;
-            user.osu = new OAuth;
-            user.osu.dateAdded = user.registered = new Date;
-        } 
+            user = new OsuUser;
+        }
 
-        user.country = userProfile.country_code;
-        user.osu.userID = userProfile.id;
-        user.osu.username = userProfile.username;
-        user.osu.avatar = userProfile.avatar_url;
-        user.osu.accessToken = accessToken;
-        user.osu.refreshToken = refreshToken;
-        user.osu.lastVerified = user.lastLogin = new Date;
+        user.userID = userProfile.id;
+        user.username = userProfile.username;
+        user.avatar = userProfile.avatar_url;
+        user.global_rank = userProfile.statistics.global_rank,
+        user.country_rank = userProfile.statistics.country_rank,
+        user.badges = userProfile.badges.length;
+        user.is_restricted = userProfile.is_restricted;
+        user.country_code = userProfile.country_code;
+        user.last_verified = new Date;
 
+        await OsuUser.upsert(user, { conflictPaths: ['userID'] });
+        
         done(null, user);
     } catch (error: any) {
         console.log("Error while authenticating user via osu!", error);

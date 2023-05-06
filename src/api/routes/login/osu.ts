@@ -4,7 +4,7 @@ import Axios from "axios";
 import { redirectToMainDomain } from "./middleware";
 import { config } from "node-config-ts";
 import { ParameterizedContext } from "koa";
-import { User } from "../../../Models/user";
+import { OsuUser } from "../../../Models/user";
 
 const osuRouter = new Router();
 
@@ -23,8 +23,8 @@ osuRouter.get("/callback", async (ctx: ParameterizedContext<any>, next) => {
             await user.save();
 
             // Save state in session as cross domain api calls will reset ctx.state
-            ctx.session.state = ctx.state;
-            ctx.login(user);
+            ctx.session.userID = user.userID;
+            await ctx.login(user);
             await next();
         } else {
             const redirect = ctx.cookies.get("redirect");
@@ -35,14 +35,6 @@ osuRouter.get("/callback", async (ctx: ParameterizedContext<any>, next) => {
     })(ctx, next);
 }, async (ctx, next) => {
     try {
-        // api v2 data
-        const res = await Axios.get("https://osu.ppy.sh/api/v2/me", {
-            headers: {
-                Authorization: `Bearer ${ctx.state.user.osu.accessToken}`,
-            },
-        });
-        const data = res.data;
-        
         const redirect = ctx.cookies.get("redirect");
         ctx.cookies.set("redirect", "");
         ctx.redirect(redirect ?? "back");

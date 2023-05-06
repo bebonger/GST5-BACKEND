@@ -1,49 +1,79 @@
-import { Entity, Column, BaseEntity, CreateDateColumn, Index, ObjectIdColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, BaseEntity, PrimaryColumn } from 'typeorm';
+import { getMember } from "../discord";
+import { GuildMember } from "discord.js";
+import { UserInfo } from '../Interfaces/user';
+import { stringify } from 'querystring';
+import { config } from "node-config-ts";
 
-export class OAuth {
+@Entity()
+export class UserDiscord extends BaseEntity {
+    @PrimaryColumn()
+    discordID!: string;
 
-    @Index()
-    @Column({ type: "varchar", length: 255, default: null })
-    userID!: string;
-
-    @Column({ default: "" })
+    @Column({ length: 25, nullable: false })
     username!: string;
-    
-    @Column({ default: "" })
-    avatar!: string;
 
-    @Column({ type: "longtext", nullable: true, select: false })
-    accessToken?: string;
-
-    @Column({ type: "longtext", nullable: true, select: false })
-    refreshToken?: string;
-
-    @CreateDateColumn()
-    dateAdded!: Date;
+    @Column({ length: 255, nullable: true })
+    avatar?: string;
 
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-    lastVerified!: Date;
-
+    last_verified!: Date;
 }
 
 @Entity()
-export class User extends BaseEntity {
+export class OsuUser extends BaseEntity {
+    @PrimaryColumn()
+    userID!: number;
 
-    @ObjectIdColumn()
-    ID!: number;
+    @Column({ length: 25, nullable: false })
+    username!: string;
 
-    @Column(() => OAuth)
-    discord!: OAuth;
-    
-    @Column(() => OAuth)
-    osu!: OAuth;
+    @Column({ length: 255, nullable: true })
+    avatar?: string;
 
-    @Column({ type: "tinytext" })
-    country!: string;
+    @Column({ nullable: true })
+    global_rank?: number;
 
-    @CreateDateColumn()
-    registered!: Date;
-    
+    @Column({ nullable: true })
+    country_rank?: number;
+
+    @Column({ nullable: false })
+    badges!: number;
+
+    @Column({ nullable: false })
+    is_restricted!: boolean;
+
+    @Column({ length: 2, nullable: false })
+    country_code!: string;
+
+    @OneToOne(() => UserDiscord)
+    @JoinColumn()
+    discord!: UserDiscord;
+
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-    lastLogin!: Date;
+    last_verified!: Date;
+
+    public getInfo = async function(member?: GuildMember | undefined): Promise<UserInfo> {
+        if (this.discord?.discordID && !member) {
+            member = await getMember(this.discord.discordID.toString());
+        }
+
+        const info: UserInfo = {
+            discord: {
+                avatar: this.discord?.avatar,
+                userID: this.discord?.discordID,
+                username: member ? `${member.user.username}#${member.user.discriminator}` : this.discord?.username
+            }, 
+            osu: {
+                avatar: this.avatar,
+                userID: this.userID,
+                username: this.username,
+            },
+            staff: {
+                headStaff: member ? config.discord.roles.headStaff.some(r => member!.roles.cache.has(r)) : false,
+                staff: member ? member.roles.cache.has(config.discord.roles.staff) : false,
+            }
+        }
+        return info;
+    }
 }

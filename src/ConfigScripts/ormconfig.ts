@@ -3,21 +3,24 @@ import { DataSourceOptions } from "typeorm";
 import { resolve } from "path";
 
 // Entities
-import { User } from "../Models/user"
+import { OsuUser, UserDiscord } from "../Models/user"
 
 export default {
-    type: "mongodb",
+    type: "postgres",
     host: config.database.host,
     port: config.database.port,
     database: config.database.database,
+    username: config.database.username,
+    password: config.database.password,
     timezone: "Z",
-    synchronize: false,
+    synchronize: true,
     logging: ["error"],
     maxQueryExecutionTime: 50,
     entities: [
        // `${resolve(__dirname, "Models")}/**/*.ts`,
         //`${resolve(__dirname, "Models")}/**/*.js`,
-        User
+        OsuUser,
+        UserDiscord
     ],
     cache: {
         duration: 60000,

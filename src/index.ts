@@ -9,8 +9,9 @@ import Router from "@koa/router";
 import logger from "koa-logger";
 import json from "koa-json";
 import bodyParser from "koa-bodyparser";
+import Redis from "ioredis";
 import Session from "koa-session";
-import MongooseStore from "koa-session-mongoose";
+import redisStore from "koa-redis";
 import passport, { session } from "koa-passport";
 import Mount from "koa-mount";
 import cors from "@koa/cors";
@@ -22,6 +23,7 @@ import discordRouter from "./api/routes/login/discord";
 import userRouter from "./api/routes/user";
 
 import ormConnectionOptions from "./ConfigScripts/ormconfig";
+import logoutRouter from './api/routes/login/logout';
 
 const app = new Koa();
 const router = new Router();
@@ -36,10 +38,13 @@ router.post("/", async (ctx, next) => {
 // Middlewares
 app.use(cors({credentials:true}));
 
-// Connect to MongoDB
-mongoose.connect(config.database.url);
+// Redis Client
+const redisClient = new Redis({
+    host: config.database.session.host,
+    port: config.database.session.port
+})
 
-app.keys = [ config["secretKey"] ];
+app.keys = [ "bebonger:sess" ];
 app.use(Session({
     domain: config.cookiesDomain,
     secure: process.env.NODE_ENV !== "development",
@@ -48,7 +53,9 @@ app.use(Session({
     renew: true,
     maxAge: 60 * 24 * 60 * 60 * 1000, // 2 months
     signed: true,
-    store: new MongooseStore()
+    store: new redisStore({
+        client: redisClient
+    })
 }, app));
 
 app.use(json());
@@ -80,6 +87,7 @@ app.use(router.routes()).use(router.allowedMethods());
 app.use(Mount("/api/login/osu", osuRouter.routes()));
 app.use(Mount("/api/login/discord", discordRouter.routes()));
 app.use(Mount("/api/user", userRouter.routes()));
+app.use(Mount("/api/logout", logoutRouter.routes()));
 
 // Database
 export const appDataSource = new DataSource(ormConnectionOptions);
@@ -87,9 +95,8 @@ export const appDataSource = new DataSource(ormConnectionOptions);
 console.log("Starting server");
 
 appDataSource.initialize().then((connection: DataSource) => {
-    console.log(`Connected to the ${connection.options.database} (${connection.options.entities}) database!`);
+    console.log(`Connected to the ${connection.options.database} database!`);
         
     setupPassport();
-    // app.listen(config.api.port);
     app.listen(3000);
 });

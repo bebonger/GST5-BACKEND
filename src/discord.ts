@@ -29,7 +29,8 @@ const discordGuild = (): Promise<Guild> => discordClient.guilds.fetch(config.dis
 async function getMember (ID: string): Promise<GuildMember | undefined> {
     let member: GuildMember | undefined;
     try {
-        member = await (await discordGuild()).members.fetch(ID);
+        const guild = await discordGuild()
+        member = await guild.members.fetch(ID);
     } catch (e: any) {
         if (e.code && (e.code === 10007 || e.code === 404))
             member = undefined;
