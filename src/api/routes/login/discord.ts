@@ -10,9 +10,7 @@ import { OsuUser } from "../../../Models/user";
 const discordRouter = new Router();
 
 discordRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
-    const baseURL = ctx.query.site ? (config[ctx.query.site] ? config[ctx.query.site].publicUrl : config.gst5.publicUrl) : "";
-    const params = ctx.query.redirect ?? "";
-    const redirectURL = baseURL + params ?? "back";
+    let redirectURL = process.env.NODE_ENV === "production" ? config.gst5.publicUrl : config.api.publicUrl;
     ctx.cookies.set("redirect", redirectURL, { overwrite: true });
     console.log(redirectURL);
     await next();
