@@ -23,8 +23,10 @@ discordRouter.get("/callback", async (ctx: ParameterizedContext, next) => {
                 console.log("test2");
                                 
                 let osuUser = await OsuUser.findOne({ where: { userID: ctx.session.userID }});
+                if (osuUser.discord) {
+                    osuUser.discord.remove();
+                }
                 osuUser.discord = user;
-                // console.log(osuUser);
                 await osuUser.save();
             } else
             {
