@@ -14,6 +14,7 @@ discordRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
     const params = ctx.query.redirect ?? "";
     const redirectURL = baseURL + params ?? "back";
     ctx.cookies.set("redirect", redirectURL, { overwrite: true });
+    console.log(redirectURL);
     await next();
 }, passport.authenticate("discord", { scope: ["identify", "guilds.join"] }));
 
@@ -21,12 +22,12 @@ discordRouter.get("/callback", async (ctx: ParameterizedContext, next) => {
     return await passport.authenticate("discord", { scope: ["identify", "guilds.join"], failureRedirect: "/" }, async (err, user) => {
         if (user) {
             if (ctx.session) {
-                console.log("test");
+                console.log("test2");
                                 
                 let osuUser = await OsuUser.findOne({ where: { userID: ctx.session.userID }});
                 osuUser.discord = user;
                 // console.log(osuUser);
-                await OsuUser.upsert(osuUser, { conflictPaths: ['discord'] });
+                await osuUser.save();
             } else
             {
                 ctx.body = { error: "There is no osu! account linked to this discord account! Please register via osu! first." };

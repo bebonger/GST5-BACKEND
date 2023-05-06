@@ -14,6 +14,8 @@ userRouter.get("/", isLoggedIn, async (ctx) => {
         relations: ['discord']
     });
 
+    if (!user) return;
+
     console.log(user);
     ctx.body = await user.getInfo();
 });
