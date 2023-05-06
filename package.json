@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build:api": "cross-env NODE_ENV=production tsc --project tsconfig.json",
+
+    "api": "cd Server && node dist/index.js",
+
     "api-dev": "cross-env NODE_ENV=development ts-node-dev --project tsconfig.json --respawn src/index.ts"
   },
   "keywords": [],
