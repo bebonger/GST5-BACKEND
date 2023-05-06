@@ -98,5 +98,5 @@ appDataSource.initialize().then((connection: DataSource) => {
     console.log(`Connected to the ${connection.options.database} database!`);
         
     setupPassport();
-    app.listen(3000);
+    app.listen(config.api.port);
 });
