@@ -47,7 +47,7 @@ const redisClient = new Redis({
 app.keys = [ "bebonger:sess" ];
 app.use(Session({
     domain: config.cookiesDomain,
-    secure: process.env.NODE_ENV !== "development",
+    secure: false, //process.env.NODE_ENV !== "development",
     overwrite: true,
     httpOnly: true,
     renew: true,
