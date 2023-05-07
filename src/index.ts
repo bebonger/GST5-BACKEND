@@ -20,10 +20,11 @@ import cors from "@koa/cors";
 import { setupPassport } from "./ConfigScripts/passportConfig";
 import osuRouter from "./api/routes/login/osu";
 import discordRouter from "./api/routes/login/discord";
-import userRouter from "./api/routes/user";
+import userRouter from "./api/routes/users/user";
 
 import ormConnectionOptions from "./ConfigScripts/ormconfig";
 import logoutRouter from './api/routes/login/logout';
+import teamsRouter from './api/routes/teams/teams';
 
 const app = new Koa();
 const router = new Router();
@@ -88,6 +89,7 @@ app.use(Mount("/api/login/osu", osuRouter.routes()));
 app.use(Mount("/api/login/discord", discordRouter.routes()));
 app.use(Mount("/api/user", userRouter.routes()));
 app.use(Mount("/api/logout", logoutRouter.routes()));
+app.use(Mount("/api/teams", teamsRouter.routes()));
 
 // Database
 export const appDataSource = new DataSource(ormConnectionOptions);

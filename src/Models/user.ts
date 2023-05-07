@@ -5,7 +5,7 @@ import { UserInfo } from '../Interfaces/user';
 import { stringify } from 'querystring';
 import { config } from "node-config-ts";
 
-@Entity()
+@Entity({ name: "discord_users" })
 export class DiscordUser extends BaseEntity {
     @PrimaryColumn()
     discordID!: string;
@@ -20,7 +20,7 @@ export class DiscordUser extends BaseEntity {
     last_verified!: Date;
 }
 
-@Entity()
+@Entity({ name: "osu_users" })
 export class OsuUser extends BaseEntity {
     @PrimaryColumn()
     userID!: number;
@@ -47,7 +47,7 @@ export class OsuUser extends BaseEntity {
     country_code!: string;
 
     @OneToOne(() => DiscordUser)
-    @JoinColumn()
+    @JoinColumn({ name: "discord" })
     discord!: DiscordUser;
 
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

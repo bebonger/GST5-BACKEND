@@ -6,11 +6,6 @@ const logoutRouter = new Router();
 
 logoutRouter.get("/", async (ctx) => {
     if (ctx.isAuthenticated()) {
-        const user = await OsuUser.findOne({ 
-            where: { userID: ctx.session.userID },
-            relations: ['discord']
-        });
-        await user.remove();
         await ctx.logout();
         ctx.session = null;
         ctx.redirect("back");

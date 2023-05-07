@@ -4,6 +4,7 @@ import { resolve } from "path";
 
 // Entities
 import { OsuUser, DiscordUser } from "../Models/user"
+import { Invite, Team } from './../Models/team';
 
 export default {
     type: "postgres",
@@ -20,7 +21,9 @@ export default {
        // `${resolve(__dirname, "Models")}/**/*.ts`,
         //`${resolve(__dirname, "Models")}/**/*.js`,
         OsuUser,
-        DiscordUser
+        DiscordUser,
+        Invite, 
+        Team
     ],
     cache: {
         duration: 60000,
