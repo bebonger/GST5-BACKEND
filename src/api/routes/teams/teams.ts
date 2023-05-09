@@ -12,7 +12,7 @@ teamsRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
     ctx.body = teams;
 });
 
-teamsRouter.post("/invite", async (ctx: ParameterizedContext<any>, next) => {
+teamsRouter.post("/send-invite", async (ctx: ParameterizedContext<any>, next) => {
     
     if (!ctx.isAuthenticated || !ctx.session.userID) {
         ctx.body = { error: "Your session has expired, please log in again." }; 
@@ -45,7 +45,7 @@ teamsRouter.post("/invite", async (ctx: ParameterizedContext<any>, next) => {
     ctx.body = { success: `You haved invited userID ${invite.invitee}!` };
 });
 
-teamsRouter.get("/my-invites", async (ctx: ParameterizedContext<any>, next) => {
+teamsRouter.get("/invites", async (ctx: ParameterizedContext<any>, next) => {
 
     if (!ctx.isAuthenticated || !ctx.session.userID) {
         ctx.body = { error: "Your session has expired, please log in again." }; 
