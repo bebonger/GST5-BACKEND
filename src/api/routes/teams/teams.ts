@@ -56,7 +56,7 @@ teamsRouter.post("/send-invite", async (ctx: ParameterizedContext<any>, next) =>
     invite.invitee = invitee;
 
     invite.save();
-    ctx.body = { success: `You haved invited userID ${invite.invitee}!` };
+    ctx.body = { success: `You haved invited '${invite.invitee.username}'!` };
 });
 
 teamsRouter.post("/accept-invite", async (ctx: ParameterizedContext<any>, next) => { 
