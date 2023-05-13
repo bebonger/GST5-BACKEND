@@ -1,13 +1,18 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, BaseEntity, PrimaryColumn, Unique, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, BaseEntity, PrimaryColumn, Unique, Index, ManyToOne } from 'typeorm';
 import { OsuUser } from './user';
 
 @Entity({ name: "team_invites" })
 export class Invite extends BaseEntity {
-    @PrimaryColumn({ nullable: false })
-    sender!: number; // sender's userID
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-    @Column({ nullable: false })
-    invitee!: number; // invitee's userID
+    @ManyToOne(() => OsuUser, { nullable: false })
+    @JoinColumn({ name: "sender" })
+    sender!: OsuUser;
+  
+    @ManyToOne(() => OsuUser, { nullable: false })
+    @JoinColumn({ name: "invitee" })
+    invitee!: OsuUser;
 
     @Column({ length: 255, nullable: true })
     inviteMessage: string | null;

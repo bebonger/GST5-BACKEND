@@ -3,6 +3,7 @@ import { OsuUser, DiscordUser } from './Models/user';
 import { config } from "node-config-ts";
 import { getMember } from "./discord";
 import { ParameterizedContext, Next } from "koa";
+import { Notification } from './Models/notification';
 
 interface discordRoleInfo {
     section: string;
@@ -12,7 +13,7 @@ interface discordRoleInfo {
 // General middlewares
 async function isLoggedIn (ctx: ParameterizedContext, next: Next): Promise<void> {
 
-    if (!ctx.session.userID) {
+    if (!ctx.isAuthenticated || !ctx.session.userID) {
         ctx.body = { error: "User is not logged in via osu!" };
         return;
     }
@@ -58,4 +59,22 @@ async function IsEligibleToPlay (ctx: ParameterizedContext, next: Next): Promise
     return;
 }
 
-export { isLoggedIn, isLoggedInDiscord, IsEligibleToPlay };
+async function CreateNotification (ctx: ParameterizedContext, next: Next): Promise<void> {
+
+    if (!ctx.state.notification || !ctx.state.osuUser) {
+        console.log("Error while trying to create notification: ctx state was not passed to this middleware."); 
+        return;
+    }
+
+    const notification = new Notification;
+    notification.user = ctx.state.osuUser;
+    notification.type = ctx.state.notification.type;
+    notification.data = ctx.state.notification.data;
+    notification.isRead = false;
+
+    console.log(notification);
+
+    notification.save();
+}
+
+export { isLoggedIn, isLoggedInDiscord, IsEligibleToPlay, CreateNotification };

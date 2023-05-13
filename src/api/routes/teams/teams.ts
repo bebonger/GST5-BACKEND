@@ -20,7 +20,7 @@ teamsRouter.post("/send-invite", async (ctx: ParameterizedContext<any>, next) =>
         return;
     }
 
-    if (!ctx.request.body["invitee"] || ctx.request.body["invitee"] === "") {
+    if (!ctx.request.body["invitee"] || ctx.request.body["invitee"] === "" || ctx.request.body["invitee"] == ctx.session.userID) {
         ctx.body = { error: "You cannot invite this player." }; 
         return;
     }
@@ -28,9 +28,10 @@ teamsRouter.post("/send-invite", async (ctx: ParameterizedContext<any>, next) =>
     // Search for existing invite towards this player
     let invite = await Invite.findOne({
         where: {
-            sender: ctx.session.userID,
-            invitee: Number(ctx.request.body["invitee"])
-        }
+            sender: { userID: ctx.session.userID },
+            invitee: { userID: Number(ctx.request.body["invitee"]) }
+        },
+        relations: [ "sender", "invitee" ]
     });
 
     if (invite) {
@@ -38,9 +39,21 @@ teamsRouter.post("/send-invite", async (ctx: ParameterizedContext<any>, next) =>
         return;
     }
 
+    const [sender, invitee] = await Promise.all([
+        OsuUser.findOne({where: { userID: ctx.session.userID }}),
+        OsuUser.findOne({where: { userID: ctx.request.body["invitee"] }})
+    ]);
+
+    console.log(sender);
+
+    if (!sender || !invitee) {
+        ctx.body = { error: "Invalid sender or invitee." };
+        return;
+    }
+
     invite = new Invite;
-    invite.sender = ctx.session.userID;
-    invite.invitee = Number(ctx.request.body["invitee"]);
+    invite.sender = sender;
+    invite.invitee = invitee;
 
     invite.save();
     ctx.body = { success: `You haved invited userID ${invite.invitee}!` };
@@ -55,9 +68,10 @@ teamsRouter.post("/accept-invite", async (ctx: ParameterizedContext<any>, next) 
     try {
         const invite = await Invite.findOne({
             where: {
-                sender: ctx.request.body["invite"]["sender"],
-                invitee: ctx.session.userID
-            }
+                sender: { userID: ctx.request.body["invite"]["sender"] },
+                invitee: { userID:  ctx.session.userID }
+            },
+            relations: [ "sender", "invitee" ]
         })
 
         if (!invite) {
@@ -94,9 +108,14 @@ teamsRouter.get("/invites", async (ctx: ParameterizedContext<any>, next) => {
 
     const invites = await Invite.find({
         where: {
-            invitee: ctx.session.userID
-        }
+            invitee: { 
+                userID: ctx.session.userID
+            }
+        },
+        relations: [ "sender", "invitee" ]
     });
+
+
 
     ctx.body = invites;
 });

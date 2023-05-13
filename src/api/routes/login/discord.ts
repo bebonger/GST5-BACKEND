@@ -17,12 +17,12 @@ discordRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
 }, passport.authenticate("discord", { scope: ["identify", "guilds.join"] }));
 
 discordRouter.get("/callback", async (ctx: ParameterizedContext, next) => {
-    return await passport.authenticate("discord", { scope: ["identify", "guilds.join"], failureRedirect: "/" }, async (err, user) => {
+    return await passport.authenticate("discord", { scope: ["identify", "guilds.join"], failureRedirect: "/" }, async (err, user, info) => {
         if (user) {
             if (ctx.session) {
                 console.log("test2");
                                 
-                let osuUser = await OsuUser.findOne({ where: { userID: ctx.session.userID }});
+                var osuUser = await OsuUser.findOne({ where: { userID: ctx.session.userID }});
                 if (osuUser.discord) {
                     osuUser.discord.remove();
                 }
@@ -34,27 +34,26 @@ discordRouter.get("/callback", async (ctx: ParameterizedContext, next) => {
                 return;
             }
 
-            /*
             try {
+
                 // Add user to server if they aren't there yet
                 const guild = await discordGuild();
                 try {
-                    const discordUser = await guild.members.fetch(user.discord.userID);
+                    const discordUser = await guild.members.fetch(osuUser.discord.discordID);
                     await Promise.all([
-                        discordUser.setNickname(user.osu.username),
-                        discordUser.roles.add(config.discord.roles.corsace.verified),
+                        discordUser.setNickname(osuUser.username),
+                        discordUser.roles.add(config.discord.roles.verified),
                     ]);
                 } catch (e) {
-                    await guild.members.add(user.discord.userID, {
-                        accessToken: user.discord.accessToken,
-                        nick: user.osu.username,
-                        roles: [config.discord.roles.corsace.verified, config.discord.roles.corsace.streamAnnouncements],
+                    await guild.members.add(osuUser.discord.discordID, {
+                        accessToken: info.token,
+                        nick: osuUser.username,
+                        roles: [config.discord.roles.verified],
                     });
                 }
             } catch (err) {
                 console.log("An error occurred in adding a user to the server / changing their nickname: " + err);
             }
-            */
 
             const redirect = ctx.cookies.get("redirect");
             ctx.cookies.set("redirect", "");

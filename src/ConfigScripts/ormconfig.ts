@@ -5,6 +5,7 @@ import { resolve } from "path";
 // Entities
 import { OsuUser, DiscordUser } from "../Models/user"
 import { Invite, Team } from './../Models/team';
+import { Notification } from "../Models/notification";
 
 export default {
     type: "postgres",
@@ -23,7 +24,8 @@ export default {
         OsuUser,
         DiscordUser,
         Invite, 
-        Team
+        Team,
+        Notification
     ],
     cache: {
         duration: 60000,

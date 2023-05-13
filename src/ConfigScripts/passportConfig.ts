@@ -69,7 +69,7 @@ export async function discordPassport (accessToken: string, refreshToken: string
 
         await DiscordUser.upsert(userDiscord, { conflictPaths: ['discordID'] });
 
-        done(null, userDiscord);
+        done(null, userDiscord, {token: accessToken});
     } catch(error: any) {
         console.log("Error while authenticating user via Discord", error);
         done(error, undefined);

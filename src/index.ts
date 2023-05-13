@@ -2,6 +2,7 @@ import { config } from 'node-config-ts';
 import { DataSource } from "typeorm";
 import crypto from "crypto";
 import mongoose from "mongoose";
+import ormConnectionOptions from "./ConfigScripts/ormconfig";
 
 // Koa
 import Koa from "koa";
@@ -21,10 +22,9 @@ import { setupPassport } from "./ConfigScripts/passportConfig";
 import osuRouter from "./api/routes/login/osu";
 import discordRouter from "./api/routes/login/discord";
 import userRouter from "./api/routes/users/user";
-
-import ormConnectionOptions from "./ConfigScripts/ormconfig";
 import logoutRouter from './api/routes/login/logout';
 import teamsRouter from './api/routes/teams/teams';
+import notificationsRouter from './api/routes/notifications/notifications';
 
 const app = new Koa();
 const router = new Router();
@@ -89,7 +89,12 @@ app.use(Mount("/api/login/osu", osuRouter.routes()));
 app.use(Mount("/api/login/discord", discordRouter.routes()));
 app.use(Mount("/api/user", userRouter.routes()));
 app.use(Mount("/api/logout", logoutRouter.routes()));
+
+// Teams and Invites
 app.use(Mount("/api/teams", teamsRouter.routes()));
+
+// Notifications
+app.use(Mount("/api/notifications", notificationsRouter.routes()));
 
 // Database
 export const appDataSource = new DataSource(ormConnectionOptions);

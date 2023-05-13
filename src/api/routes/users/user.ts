@@ -25,8 +25,10 @@ userRouter.get("/me", isLoggedIn, async (ctx: ParameterizedContext<any>, next) =
 // route to retrieve users that are authenticated with the GST5 website
 userRouter.get("/search", async (ctx: ParameterizedContext<any>, next) => {
 
-    if (!ctx.request.query["playerSearchQuery"])
+    if (!ctx.request.query["playerSearchQuery"]) {
+        ctx.body = [];
         return;
+    }
 
     const users = await OsuUser.find({
         where: [

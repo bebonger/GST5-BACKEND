@@ -68,6 +68,7 @@ export class OsuUser extends BaseEntity {
                 avatar: this.avatar,
                 userID: this.userID,
                 username: this.username,
+                global_rank: this.global_rank,
             },
             staff: {
                 headStaff: member ? config.discord.roles.headStaff.some(r => member!.roles.cache.has(r)) : false,
