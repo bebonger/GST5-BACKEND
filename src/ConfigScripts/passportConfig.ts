@@ -82,6 +82,9 @@ export async function osuPassport (accessToken: string, refreshToken: string, pr
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
+            params: {
+                mode: "osu"
+            }
         });
 
         const userProfile = res.data;
