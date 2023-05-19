@@ -46,5 +46,17 @@ userRouter.get("/search", async (ctx: ParameterizedContext<any>, next) => {
     ctx.body = userInfoArray;
 });
 
+userRouter.get("/all", async (ctx: ParameterizedContext<any>, next) => {
+
+    const users = await OsuUser.find();
+
+    const promises = users.map(async user => {
+        return user.getInfo();
+    });
+
+    const userInfoArray = await Promise.all(promises);
+    ctx.body = userInfoArray;
+});
+
 
 export default userRouter;

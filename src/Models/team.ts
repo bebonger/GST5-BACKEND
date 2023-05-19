@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, BaseEntity, PrimaryColumn, Unique, Index, ManyToOne } from 'typeorm';
 import { OsuUser } from './user';
+import { InviteInfo, TeamInfo } from '../Interfaces/team';
 
 @Entity({ name: "team_invites" })
 export class Invite extends BaseEntity {
@@ -16,6 +17,16 @@ export class Invite extends BaseEntity {
 
     @Column({ length: 255, nullable: true })
     inviteMessage: string | null;
+
+    public getInfo = async function(): Promise<InviteInfo> {
+        const info: InviteInfo = {
+            sender: await this.sender.getInfo(),
+            invitee: await this.invitee.getInfo(),
+            inviteMessage: this.inviteMessage
+        };
+
+        return info;
+    }
 }
 
 @Entity({ name: "teams" })
@@ -36,4 +47,15 @@ export class Team extends BaseEntity {
     @OneToOne(() => OsuUser)
     @JoinColumn({ name: "player2" })
     player2!: OsuUser;
+
+    public getInfo = async function(): Promise<TeamInfo> {
+        const info: TeamInfo = {
+            avatar: this.team_avatar,
+            name: this.team_name,
+            player1: await this.player1.getInfo(),
+            player2: await this.player2.getInfo(),
+        };
+
+        return info;
+    }
 }

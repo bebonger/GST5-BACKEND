@@ -13,7 +13,34 @@ teamsRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
     ctx.body = teams;
 });
 
-teamsRouter.post("/send-invite", async (ctx: ParameterizedContext<any>, next) => {
+teamsRouter.get("/invites", async (ctx: ParameterizedContext<any>, next) => {
+
+    if (!ctx.isAuthenticated || !ctx.session.userID) {
+        ctx.body = { error: "Your session has expired, please log in again." }; 
+        return;
+    }
+
+    const invites = await Invite.find({
+        where: {
+            invitee: { 
+                userID: ctx.session.userID
+            }
+        },
+        relations: [ "sender", "invitee" ]
+    });
+
+    console.log(invites); 
+
+    const promises = invites.map(async invite => {
+        return invite.getInfo();
+    });
+    
+    const inviteInfoArray = await Promise.all(promises);
+    console.log(inviteInfoArray);
+    ctx.body = inviteInfoArray;
+});
+
+teamsRouter.post("/invites/send", async (ctx: ParameterizedContext<any>, next) => {
     
     if (!ctx.isAuthenticated || !ctx.session.userID) {
         ctx.body = { error: "Your session has expired, please log in again." }; 
@@ -56,10 +83,10 @@ teamsRouter.post("/send-invite", async (ctx: ParameterizedContext<any>, next) =>
     invite.invitee = invitee;
 
     invite.save();
-    ctx.body = { success: `You haved invited '${invite.invitee.username}'!` };
+    ctx.body = { success: `You have invited '${invite.invitee.username}'!` };
 });
 
-teamsRouter.post("/accept-invite", async (ctx: ParameterizedContext<any>, next) => { 
+teamsRouter.post("/invites/accept", async (ctx: ParameterizedContext<any>, next) => { 
     if (!ctx.isAuthenticated || !ctx.session.userID) {
         ctx.body = { error: "Your session has expired, please log in again." }; 
         return;
@@ -91,33 +118,15 @@ teamsRouter.post("/accept-invite", async (ctx: ParameterizedContext<any>, next) 
         team.player1 = players[0];
         team.player2 = players[1];
         
-        team.save();
+        await invite.remove();
+        await team.save();
+
+        ctx.body = { "success": `You have formed a team with '${invite.sender.username}'.`}
 
     } catch (err) {
         ctx.body = { "error": "Error while accepting invite: " + err };
         console.log(err);
     }
-})
-
-teamsRouter.get("/invites", async (ctx: ParameterizedContext<any>, next) => {
-
-    if (!ctx.isAuthenticated || !ctx.session.userID) {
-        ctx.body = { error: "Your session has expired, please log in again." }; 
-        return;
-    }
-
-    const invites = await Invite.find({
-        where: {
-            invitee: { 
-                userID: ctx.session.userID
-            }
-        },
-        relations: [ "sender", "invitee" ]
-    });
-
-
-
-    ctx.body = invites;
 });
 
 export default teamsRouter;

@@ -9,7 +9,7 @@ export interface UserInfo {
         userID: number;
         username: string;
         global_rank: number;
-        
+        badges: number;
     };
     staff: {
         headStaff: boolean;

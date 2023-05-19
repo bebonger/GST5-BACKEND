@@ -39,12 +39,43 @@ async function isLoggedInDiscord (ctx: ParameterizedContext, next: Next): Promis
     await next();
 }
 
+function hasRole (role: string) {
+    return async (ctx: ParameterizedContext, next: Next): Promise<void> => {
+
+        if (!ctx.isAuthenticated || !ctx.session.userID) {
+            ctx.body = { error: "User is not logged in via osu!" };
+            return;
+        }
+    
+        const osuUser = await OsuUser.findOne({ where: {
+            userID: ctx.session.userID
+        }, relations: ["discord"]});
+
+        if (!osuUser) return;
+
+        const member = await getMember(osuUser.discord.discordID);
+        if (member) {
+            const hasRole =  Array.isArray(config.discord.roles[role]) ? config.discord.roles[role].some(r => member.roles.cache.has(r)) : member.roles.cache.has(config.discord.roles[role]);
+            if (hasRole) {
+                
+                await next();
+                return;
+            }
+        } 
+        
+        ctx.body = { error: "User does not have the " + role + " role!" };
+        return;
+    };
+}
+
+const isHeadStaff = hasRole("headStaff");
+
 async function IsEligibleToPlay (ctx: ParameterizedContext, next: Next): Promise<void> {
     
     if (ctx.session.userID) {
         const osuUser = await OsuUser.findOne({ where: {
             userID: ctx.session.userID
-        }})
+        }});
 
         if (osuUser.country_code !== 'SG' || osuUser.is_restricted) {
             ctx.body = { error: "User is not eligible to participate" }; 
@@ -77,4 +108,4 @@ async function CreateNotification (ctx: ParameterizedContext, next: Next): Promi
     notification.save();
 }
 
-export { isLoggedIn, isLoggedInDiscord, IsEligibleToPlay, CreateNotification };
+export { isLoggedIn, isLoggedInDiscord, IsEligibleToPlay, CreateNotification, hasRole, isHeadStaff };

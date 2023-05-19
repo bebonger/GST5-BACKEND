@@ -6,6 +6,7 @@ import { resolve } from "path";
 import { OsuUser, DiscordUser } from "../Models/user"
 import { Invite, Team } from './../Models/team';
 import { Notification } from "../Models/notification";
+import { Match, Schedule, Group } from "../Models/bracket";
 
 export default {
     type: "postgres",
@@ -21,11 +22,10 @@ export default {
     entities: [
        // `${resolve(__dirname, "Models")}/**/*.ts`,
         //`${resolve(__dirname, "Models")}/**/*.js`,
-        OsuUser,
-        DiscordUser,
-        Invite, 
-        Team,
-        Notification
+        OsuUser, DiscordUser,
+        Invite, Team,
+        Notification,
+        Match, Schedule, Group
     ],
     cache: {
         duration: 60000,
