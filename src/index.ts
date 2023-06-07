@@ -9,7 +9,7 @@ import Koa from "koa";
 import Router from "@koa/router";
 import logger from "koa-logger";
 import json from "koa-json";
-import bodyParser from "koa-bodyparser";
+import koaBody from 'koa-body';
 import Redis from "ioredis";
 import Session from "koa-session";
 import redisStore from "koa-redis";
@@ -61,7 +61,12 @@ app.use(Session({
 
 app.use(json());
 app.use(logger());
-app.use(bodyParser());
+app.use(koaBody(
+    {
+        multipart: true,
+        urlencoded: true,
+    }
+));
 app.use(passport.initialize());
 app.use(passport.session());
 

@@ -3,6 +3,12 @@ import { IsEligibleToPlay, isLoggedIn } from "../../../middleware"
 import { ParameterizedContext } from "koa";
 import { Invite, Team } from "../../../Models/team";
 import { OsuUser } from "../../../Models/user";
+import { config } from 'node-config-ts';
+import axios from "axios";
+import imgurClient from '../../../ConfigScripts/imgurConfig';
+import { createReadStream, readFile, readFileSync, unlink } from "fs";
+import { promisify } from "util";
+import { File } from "buffer";
 
 const teamsRouter = new Router();
 
@@ -18,6 +24,94 @@ teamsRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
     const teamInfoArray = await Promise.all(promises);
     console.log(teamInfoArray);
     ctx.body = teamInfoArray;
+});
+
+teamsRouter.post("/edit/banner", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => {
+
+    const file = ctx.request.files.image;
+    const fileStream = createReadStream(file["filepath"]);
+
+
+    const buffer = await new Promise((resolve, reject) => {
+        const chunks = [];
+        fileStream.on('data', (chunk) => {
+            chunks.push(chunk);
+        });
+        
+        fileStream.on('end', () => {
+            resolve(Buffer.concat(chunks));
+        });
+        
+        fileStream.on('error', (error) => {
+            reject(error);
+        });
+    });
+    
+    const response = await imgurClient.upload({
+        image: buffer as Buffer,
+        type: 'stream'
+    })
+
+    console.log(response.data);
+    
+    await unlink(file['filepath'], (err) => {
+        if (err) {
+            console.error(`Error deleting temporary file ${file['filepath']}:`, err);
+        }
+    });
+
+    const team = await Team.findOne({
+        where: [
+            { player1: { userID: ctx.session.userID } },
+            { player2: { userID: ctx.session.userID } },
+        ],
+        relations: ['player1', 'player2'],
+    });
+
+    if (!team) {
+        console.log("No team found");
+        ctx.body = {
+            error: "No team found"
+        }
+        return;
+    } 
+
+    team.team_avatar = response.data.link;
+    ctx.body = {
+        success: "Changed team banner"
+    }
+});
+
+teamsRouter.post("/edit/name", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => {
+
+    if ((ctx.request.body.name as string).trim().length == 0 || (ctx.request.body.name as string).length >= 16) {
+        ctx.body = {
+            error: "Invalid Team Name"
+        };
+        return;
+    }
+    
+    const team = await Team.findOne({
+        where: [
+            { player1: { userID: ctx.session.userID } },
+            { player2: { userID: ctx.session.userID } },
+        ],
+        relations: ['player1', 'player2'],
+    });
+
+    if (!team) {
+        ctx.body = {
+            error: "No team found"
+        };
+        return;
+    } 
+
+
+    let oldName = team.team_name;
+    team.team_name = ctx.request.body.name;
+    ctx.body = {
+        success: `Changed team name from ${oldName} to ${team.team_name}`
+    };
 });
 
 teamsRouter.get("/invites", async (ctx: ParameterizedContext<any>, next) => {
@@ -50,7 +144,20 @@ teamsRouter.get("/invites", async (ctx: ParameterizedContext<any>, next) => {
 teamsRouter.post("/invites/send", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => {
 
     if (!ctx.request.body["invitee"] || ctx.request.body["invitee"] === "") {
-        ctx.body = { error: "User does not exist." }; 
+        ctx.body = { error: "User does not exist" }; 
+        return;
+    }
+
+    // Check if user is in team
+    const team = await Team.findOne({
+        where: [
+            { player1: { userID: ctx.session.userID }},
+            { player2: { userID: ctx.session.userID }},
+        ]
+    });
+
+    if (team) {
+        ctx.body = { error: "You already have a team" }; 
         return;
     }
 
@@ -99,6 +206,19 @@ teamsRouter.post("/invites/send", isLoggedIn, async (ctx: ParameterizedContext<a
 teamsRouter.post("/invites/accept", async (ctx: ParameterizedContext<any>, next) => { 
     if (!ctx.isAuthenticated || !ctx.session.userID) {
         ctx.body = { error: "Your session has expired, please log in again." }; 
+        return;
+    }
+
+    // Check if user is in team
+    const team = await Team.findOne({
+        where: [
+            { player1: { userID: ctx.session.userID }},
+            { player2: { userID: ctx.session.userID }},
+        ]
+    });
+
+    if (team) {
+        ctx.body = { error: "You already have a team" }; 
         return;
     }
 

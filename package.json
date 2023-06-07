@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build:api": "cross-env NODE_ENV=production tsc --project tsconfig.json",
-
     "api": "cross-env NODE_ENV=production node dist/index.js",
-
     "api-dev": "cross-env NODE_ENV=development ts-node-dev --project tsconfig.json --respawn src/index.ts"
   },
   "keywords": [],
@@ -25,7 +23,9 @@
     "axios": "^1.4.0",
     "discord.js": "^14.10.2",
     "i": "^0.3.7",
+    "imgur": "^2.3.0",
     "koa": "^2.14.2",
+    "koa-body": "^6.0.1",
     "koa-bodyparser": "^4.4.0",
     "koa-json": "^2.0.2",
     "koa-logger": "^3.2.1",
@@ -42,6 +42,7 @@
     "passport-oauth2": "^1.7.0",
     "pg": "^8.10.0",
     "reflect-metadata": "^0.1.13",
+    "stream-to-blob": "^2.0.1",
     "ts-node-dev": "^2.0.0",
     "typeorm": "^0.3.15"
   },
