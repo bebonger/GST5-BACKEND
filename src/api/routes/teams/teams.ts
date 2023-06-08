@@ -77,6 +77,8 @@ teamsRouter.post("/edit/banner", isLoggedIn, async (ctx: ParameterizedContext<an
     } 
 
     team.team_avatar = response.data.link;
+    await team.save();
+
     ctx.body = {
         success: "Changed team banner"
     }
@@ -109,6 +111,8 @@ teamsRouter.post("/edit/name", isLoggedIn, async (ctx: ParameterizedContext<any>
 
     let oldName = team.team_name;
     team.team_name = ctx.request.body.name;
+    await team.save();
+
     ctx.body = {
         success: `Changed team name from ${oldName} to ${team.team_name}`
     };
