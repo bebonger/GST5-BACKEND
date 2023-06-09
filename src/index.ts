@@ -103,7 +103,7 @@ app.use(Mount("/api/teams", teamsRouter.routes()));
 app.use(Mount("/api/notifications", notificationsRouter.routes()));
 
 // Admin
-app.use(Mount("/api/admin/schedules", adminRouter.routes()));
+app.use(Mount("/api/admin", adminRouter.routes()));
 
 
 // Database

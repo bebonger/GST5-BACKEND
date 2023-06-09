@@ -2,6 +2,7 @@ import Router from "@koa/router";
 import { ParameterizedContext } from "koa";
 import { isHeadStaff, isLoggedInDiscord } from "../../../middleware";
 import { Match } from "../../../Models/bracket";
+import { osuAPIV2 } from "../../../Interfaces/osuAPIV2";
 
 const adminRouter = new Router();
 
