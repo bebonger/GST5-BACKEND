@@ -171,17 +171,22 @@ teamsRouter.post("/invites/send", isLoggedIn, async (ctx: ParameterizedContext<a
     ]);
 
     if (!sender) {
-        ctx.body = { error: "Invalid sender." };
+        ctx.body = { error: "Invalid sender" };
+        return;
+    }
+
+    if (sender.country_code != "SG" || sender.is_restricted ) {
+        ctx.body = { error: "You are not eligible to play"};
         return;
     }
 
     if (!invitee) {
-        ctx.body = { error: "User does not exist." };
+        ctx.body = { error: "User does not exist" };
         return;
     }
 
-    if (invitee.is_restricted || (await invitee.getInfo()).staff.headStaff || invitee.userID == ctx.session.userID) {
-        ctx.body = { error: "You cannot invite this player." };
+    if (invitee.is_restricted || (await invitee.getInfo()).staff.headStaff || invitee.userID == ctx.session.userID || invitee.country_code != 'SG') {
+        ctx.body = { error: "You cannot invite this player" };
         return;
     }
 

@@ -25,6 +25,7 @@ import userRouter from "./api/routes/users/user";
 import logoutRouter from './api/routes/login/logout';
 import teamsRouter from './api/routes/teams/teams';
 import notificationsRouter from './api/routes/notifications/notifications';
+import adminRouter from './api/routes/admin/admin';
 
 const app = new Koa();
 const router = new Router();
@@ -100,6 +101,10 @@ app.use(Mount("/api/teams", teamsRouter.routes()));
 
 // Notifications
 app.use(Mount("/api/notifications", notificationsRouter.routes()));
+
+// Admin
+app.use(Mount("/api/admin/schedules", adminRouter.routes()));
+
 
 // Database
 export const appDataSource = new DataSource(ormConnectionOptions);
