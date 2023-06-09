@@ -14,7 +14,7 @@ const teamsRouter = new Router();
 
 teamsRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
     const teams = await Team.find({
-        relations: ['player1', 'player2']
+        relations: ['player1', 'player2', 'player1.discord', 'player2.discord']
     });
 
     const promises = teams.map(async team => {
