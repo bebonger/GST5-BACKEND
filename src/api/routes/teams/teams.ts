@@ -108,6 +108,18 @@ teamsRouter.post("/edit/name", isLoggedIn, async (ctx: ParameterizedContext<any>
         return;
     } 
 
+    const team2 = await Team.findOne({
+        where: {
+            team_name: ctx.request.body.name
+        }
+    });
+
+    if (team2) {
+        ctx.body = {
+            error: "A team with this name exists"
+        };
+        return;
+    }
 
     let oldName = team.team_name;
     team.team_name = ctx.request.body.name;
