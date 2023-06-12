@@ -78,13 +78,10 @@ export async function discordPassport (accessToken: string, refreshToken: string
 
 export async function osuPassport (accessToken: string, refreshToken: string, profile: any, done: OAuth2Strategy.VerifyCallback): Promise<void> {
     try {
-        const res = await Axios.get("https://osu.ppy.sh/api/v2/me", {
+        const res = await Axios.get("https://osu.ppy.sh/api/v2/me/osu", {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
-            params: {
-                mode: "osu"
-            }
         });
 
         const userProfile = res.data;
