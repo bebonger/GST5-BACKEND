@@ -37,6 +37,9 @@ export class OsuUser extends BaseEntity {
     @Column({ nullable: true })
     country_rank?: number;
 
+    @Column('decimal', { nullable: true })
+    performance_points?: number;
+
     @Column({ nullable: false })
     badges!: number;
 
@@ -52,6 +55,12 @@ export class OsuUser extends BaseEntity {
 
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     last_verified!: Date;
+
+    @Column({ nullable: true })
+    accessToken!: string;
+
+    @Column({ default: false })
+    gst_banned!: boolean;
 
     public getInfo = async function(member?: GuildMember | undefined): Promise<UserInfo> {
         if (this.discord?.discordID && !member) {
@@ -69,7 +78,8 @@ export class OsuUser extends BaseEntity {
                 userID: this.userID,
                 username: this.username,
                 global_rank: this.global_rank,
-                badges: this.badges
+                badges: this.badges,
+                pp: this.performance_points
             },
             staff: {
                 headStaff: member ? config.discord.roles.headStaff.some(r => member!.roles.cache.has(r)) : false,

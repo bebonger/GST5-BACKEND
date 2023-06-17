@@ -27,7 +27,7 @@ async function isLoggedInDiscord (ctx: ParameterizedContext, next: Next): Promis
     if (ctx.session.userID) {
         discordUser = await OsuUser.findOne({ where: {
             userID: ctx.session.userID
-        }})
+        }, relations: ["discord"]});
         discordUser = discordUser.discord;
     }
 
@@ -57,7 +57,7 @@ function hasRole (role: string) {
         if (member) {
             const hasRole =  Array.isArray(config.discord.roles[role]) ? config.discord.roles[role].some(r => member.roles.cache.has(r)) : member.roles.cache.has(config.discord.roles[role]);
             if (hasRole) {
-                
+                ctx.state.accessToken = osuUser.accessToken;
                 await next();
                 return;
             }

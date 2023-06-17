@@ -10,6 +10,7 @@ export interface UserInfo {
         username: string;
         global_rank: number;
         badges: number;
+        pp: number;
     };
     staff: {
         headStaff: boolean;

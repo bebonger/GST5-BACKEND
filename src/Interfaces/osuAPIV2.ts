@@ -63,8 +63,11 @@ export class osuAPIV2 {
         return this.get("/friends", accessToken);
     }
 
-    /*
-    public async getUsers (ids: number[]) {
+    public async getUser(id: number, accessToken: string) {
+        return await this.get(`/users/${id}/osu`, accessToken);
+    }
+
+    public async getUsers (ids: number[], accessToken: string) {
         const chunkSize = 50;
         const chunks = [];
 
@@ -74,18 +77,29 @@ export class osuAPIV2 {
         }
 
         let users = {};
-
         const promises = chunks.map(async chunk => {
-            return this.get("/", accessToken);
+            // const endpoint = `/users?ids[]=${chunk.join("&ids[]=")}`;
+            // const includes = ["badges", "statistics"];
+            // const url = `${endpoint}&includes=statistics`;
+
+            const endpoint = "/users";
+            const includes = ["country", "cover", "groups", "statistics_rulesets"];
+            const queryParams = new URLSearchParams({ ids: chunks.join(","), includes: includes.join(",") });
+            const url = `${endpoint}?${queryParams.toString()}`;
+            console.log(url);
+            return await this.get(url, accessToken);
         });
 
-        chunks.forEach((chunk) => {
-            this.get()
+        const results = await Promise.all(promises);
+
+        results.forEach(response => {
+            response.users.forEach(user => {
+            users[user.id] = user;
+            });
         });
 
-        return this.get("/")
+        return users;
     }
-    */
 
     public async sendMessage (userID: string, message: string): Promise<boolean> {
         try {

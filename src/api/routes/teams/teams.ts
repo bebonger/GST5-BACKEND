@@ -187,7 +187,7 @@ teamsRouter.post("/invites/send", isLoggedIn, async (ctx: ParameterizedContext<a
         return;
     }
 
-    if (sender.country_code != "SG" || sender.is_restricted ) {
+    if (sender.country_code != "SG" || sender.is_restricted || sender.gst_banned ) {
         ctx.body = { error: "You are not eligible to play"};
         return;
     }
@@ -197,7 +197,7 @@ teamsRouter.post("/invites/send", isLoggedIn, async (ctx: ParameterizedContext<a
         return;
     }
 
-    if (invitee.is_restricted || (await invitee.getInfo()).staff.headStaff || invitee.userID == ctx.session.userID || invitee.country_code != 'SG') {
+    if (invitee.is_restricted || (await invitee.getInfo()).staff.headStaff || invitee.userID == ctx.session.userID || invitee.country_code != 'SG' || invitee.gst_banned) {
         ctx.body = { error: "You cannot invite this player" };
         return;
     }

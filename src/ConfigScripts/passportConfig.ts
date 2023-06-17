@@ -98,10 +98,12 @@ export async function osuPassport (accessToken: string, refreshToken: string, pr
         user.avatar = userProfile.avatar_url;
         user.global_rank = userProfile.statistics.global_rank,
         user.country_rank = userProfile.statistics.country_rank,
+        user.performance_points = userProfile.statistics.pp;
         user.badges = userProfile.badges.length;
         user.is_restricted = userProfile.is_restricted;
         user.country_code = userProfile.country_code;
         user.last_verified = new Date;
+        user.accessToken = accessToken;
 
         await OsuUser.upsert(user, { conflictPaths: ['userID'] });
         

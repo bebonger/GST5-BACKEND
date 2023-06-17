@@ -53,7 +53,7 @@ app.use(Session({
     overwrite: true,
     httpOnly: true,
     renew: true,
-    maxAge: 60 * 24 * 60 * 60 * 1000, // 2 months
+    maxAge: 86400 * 1000, // 2 months
     signed: true,
     store: new redisStore({
         client: redisClient
