@@ -24,7 +24,6 @@ export default {
         //`${resolve(__dirname, "Models")}/**/*.js`,
         OsuUser, DiscordUser,
         Invite, Team,
-        Notification,
         Match, Schedule, Group
     ],
     cache: {

@@ -35,6 +35,7 @@ osuRouter.get("/callback", async (ctx: ParameterizedContext<any>, next) => {
     })(ctx, next);
 }, async (ctx, next) => {
     try {
+        /*
         const notif: Notification = {
             type: NotificationType.General,
             data: {
@@ -44,6 +45,7 @@ osuRouter.get("/callback", async (ctx: ParameterizedContext<any>, next) => {
         }
 
         ctx.state.notification = notif;
+        */
 
         const redirect = ctx.cookies.get("redirect");
         ctx.cookies.set("redirect", "");
@@ -59,7 +61,7 @@ osuRouter.get("/callback", async (ctx: ParameterizedContext<any>, next) => {
             throw e;
         }
     }
-}, CreateNotification);
+});
 
 
 export default osuRouter;
