@@ -29,7 +29,7 @@ adminRouter.post("/user/refresh", async (ctx: ParameterizedContext<any>, next) =
         // 2: Fetch all users from osu api
         let result = {};
         for (const id of userIds) {
-            await delayExecution(500); // Delay execution by 500ms
+            await delayExecution(8.3); // Delay execution by 500ms
             console.log("Fetching userId: " + id);
             result[id] = await osuV2Client.getUser(id, ctx.state.accessToken);
             console.log(`${result[id].username}: $${result[id].statistics.global_rank}`);
