@@ -32,7 +32,7 @@ adminRouter.post("/user/refresh", async (ctx: ParameterizedContext<any>, next) =
             await delayExecution(8.3); // Delay execution by 500ms
             console.log("Fetching userId: " + id);
             result[id] = await osuV2Client.getUser(id, ctx.state.accessToken);
-            console.log(`${result[id].username}: $${result[id].statistics.global_rank}`);
+            console.log(`${result[id].username}: Rank ${result[id].statistics.global_rank}, ${result[id].statistics.pp}pp`);
         }
 
         // 3: Update all users in postgres with new data

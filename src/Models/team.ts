@@ -50,6 +50,7 @@ export class Team extends BaseEntity {
 
     public getInfo = async function(): Promise<TeamInfo> {
         const info: TeamInfo = {
+            teamID: this.teamID,
             avatar: this.team_avatar,
             name: this.team_name,
             player1: await this.player1.getInfo(),
