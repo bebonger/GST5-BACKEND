@@ -86,7 +86,7 @@ teamsRouter.post("/edit/banner", isLoggedIn, async (ctx: ParameterizedContext<an
 
 teamsRouter.post("/edit/name", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => {
 
-    if ((ctx.request.body.name as string).trim().length == 0 || (ctx.request.body.name as string).length >= 18) {
+    if ((ctx.request.body.name as string).trim().length == 0 || (ctx.request.body.name as string).length > 18) {
         ctx.body = {
             error: "Invalid Team Name"
         };
