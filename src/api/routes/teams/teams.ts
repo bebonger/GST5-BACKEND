@@ -28,6 +28,11 @@ teamsRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
 
 teamsRouter.post("/edit/banner", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => {
 
+    ctx.body = {
+        error: "Signups have closed"
+    };
+    return;
+
     const file = ctx.request.files.image;
     const fileStream = createReadStream(file["filepath"]);
 
@@ -85,6 +90,11 @@ teamsRouter.post("/edit/banner", isLoggedIn, async (ctx: ParameterizedContext<an
 });
 
 teamsRouter.post("/edit/name", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => {
+
+    ctx.body = {
+        error: "Signups have closed"
+    };
+    return;
 
     if ((ctx.request.body.name as string).trim().length == 0 || (ctx.request.body.name as string).length > 18) {
         ctx.body = {
@@ -159,6 +169,11 @@ teamsRouter.get("/invites", async (ctx: ParameterizedContext<any>, next) => {
 
 teamsRouter.post("/invites/send", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => {
 
+    ctx.body = {
+        error: "Signups have closed"
+    };
+    return;
+
     if (!ctx.request.body["invitee"] || ctx.request.body["invitee"] === "") {
         ctx.body = { error: "User does not exist" }; 
         return;
@@ -225,6 +240,12 @@ teamsRouter.post("/invites/send", isLoggedIn, async (ctx: ParameterizedContext<a
 });
 
 teamsRouter.post("/invites/accept", async (ctx: ParameterizedContext<any>, next) => { 
+    
+    ctx.body = {
+        error: "Signups have closed"
+    };
+    return;
+
     if (!ctx.isAuthenticated || !ctx.session.userID) {
         ctx.body = { error: "Your session has expired, please log in again." }; 
         return;
@@ -282,6 +303,12 @@ teamsRouter.post("/invites/accept", async (ctx: ParameterizedContext<any>, next)
 
 
 teamsRouter.post("/invites/decline", isLoggedIn, async (ctx: ParameterizedContext<any>, next) => { 
+    
+    ctx.body = {
+        error: "Signups have closed"
+    };
+    return;
+    
     try {
         const invite = await Invite.findOne({
             where: {
