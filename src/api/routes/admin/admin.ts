@@ -5,6 +5,10 @@ import { Match } from "../../../Models/bracket";
 import { OsuUser } from "../../../Models/user";
 import axios from "axios";
 import { osuV2Client } from "../../../osu";
+import { PoolMap } from "../../../Models/mappool";
+import { PoolMod } from "../../../Interfaces/mappool";
+import { MatchStage } from "../../../Interfaces/bracket";
+import { Team } from "../../../Models/team";
 
 const adminRouter = new Router();
 
@@ -54,6 +58,194 @@ adminRouter.post("/user/refresh", async (ctx: ParameterizedContext<any>, next) =
         ctx.body = { "error": e.message };
     }
 });
+
+adminRouter.post("/mappool/insert", async (ctx: ParameterizedContext<any>, next) => {
+
+    console.log(ctx.request.body);
+
+    if (!ctx.request.body["id"] || !Number.isInteger(ctx.request.body["id"]) || !ctx.request.body["mod"] || !ctx.request.body["stage"] || !ctx.request.body["slot"] || !Number.isInteger(ctx.request.body["slot"])) {
+        ctx.body = { error: "Invalid parameters" };
+        return;
+    }
+
+    const mods = {
+        "NM": 1,
+        "EZ": 2,
+        "HD": 8,
+        "HR": 16,
+        "SD": 32,
+        "DT": 64,
+        "RL": 128,
+        "HT": 256,
+        "NC": 512,
+        "FL": 1024,
+    };
+
+    // Fetch map from osu database
+    const beatmap = await osuV2Client.getBeatmap(ctx.request.body["id"], ctx.state.accessToken);
+    const attributes = await osuV2Client.getBeatmapAttributes(ctx.request.body["id"], { "mods": mods[ctx.request.body["mod"]] }, ctx.state.accessToken);
+    console.log(attributes);
+    if (!beatmap || !attributes) {
+        ctx.body = { error: "Error retrieving beatmap" };
+        return;
+    }
+ 
+    let url = beatmap.url;
+    let cover = beatmap.beatmapset.covers.cover;
+    let artist = beatmap.beatmapset.artist;
+    let title = beatmap.beatmapset.title;
+    let difficulty = beatmap.version;
+    let mapper = beatmap.beatmapset.creator;
+
+    let length = (ctx.request.body["mod"] == "DT") ? beatmap.total_length * 1.5 : beatmap.total_length;
+    let ar = Number(attributes.attributes.approach_rate.toFixed(1));
+    let od = Number(attributes.attributes.overall_difficulty.toFixed(1));
+    let cs = (ctx.request.body["mod"] == "HR") ? (beatmap.cs*1.3>10 ? 10 : Number((beatmap.cs*1.3).toFixed(1))) : beatmap.cs;
+    let bpm = (ctx.request.body["mod"] == "DT") ? Math.round(beatmap.bpm*1.5) : beatmap.bpm;
+    let hp = beatmap.drain;
+    let star_rating =  Number(attributes.attributes.star_rating.toFixed(2));
+
+    let map = await PoolMap.findOne({
+        where: {
+            stage: ctx.request.body["stage"] as MatchStage,
+            mod: ctx.request.body["mod"] as PoolMod,
+            slot: Number(ctx.request.body["slot"])
+        }
+    });
+
+    if (!map) {
+        map = new PoolMap;
+    }
+
+    map.stage = ctx.request.body["stage"] as MatchStage;
+    map.mod = ctx.request.body["mod"] as PoolMod;
+    map.slot = Number(ctx.request.body["slot"]);
+
+    map.mapID = Number(ctx.request.body["id"]);
+    map.url = url;
+    map.cover = cover;
+    map.artist = artist;
+    map.title = title;
+    map.difficulty = difficulty;
+    map.mapper = mapper;
+
+    map.length = length;
+    map.AR = ar;
+    map.OD = od;
+    map.CS = cs;
+    map.BPM = bpm;
+    map.HP = hp;
+    map.star_rating = star_rating;
+
+    await map.save();
+    ctx.body = { success: `Added '${map.artist} - ${map.title} [${map.difficulty}] as ${map.stage} ${map.mod}${map.slot}'` };
+
+});
   
+adminRouter.post("/mappool/remove", async (ctx: ParameterizedContext<any>, next) => {
+    console.log(ctx.request.body);
+
+    const map = await PoolMap.findOne({
+        where: {
+            stage: ctx.request.body["stage"],
+            mod: ctx.request.body["mod"],
+            slot: Number(ctx.request.body["slot"])
+        }
+    });
+
+    if (!map) {
+        ctx.body = { error: "No map found" };
+        return;
+    }
+
+    await map.remove();
+    ctx.body = { success: `Removed '${map.artist} - ${map.title} [${map.difficulty}] from ${map.stage} ${map.mod}${map.slot}'` }
+});
+
+adminRouter.post("/match/insert", async (ctx: ParameterizedContext<any>, next) => {
+    if (!ctx.request.body["id"] || !ctx.request.body["stage"] || !ctx.request.body["team1"] || !ctx.request.body["team2"]) {
+        ctx.body = { error: "Invalid parameters" };
+        return;
+    }
+
+    const teams = await Team.find({
+        where: [
+          { team_name: ctx.request.body["team1"] },
+          { team_name: ctx.request.body["team2"] },
+        ]
+    });
+
+    if (teams.length != 2) {
+        ctx.body = { error: "One or more teams not found" };
+        return;
+    }
+
+    let match = await Match.findOne({
+        where: {
+            matchID: ctx.request.body["id"]
+        }
+    });
+
+    if (match) {
+        ctx.body = { error: `Match ${ctx.request.body["id"]} already exists`};
+        return;
+    }
+
+    match = new Match;
+    match.matchID = ctx.request.body["id"];
+    match.stage = ctx.request.body["stage"] as MatchStage;
+    match.redTeam = teams[0];
+    match.blueTeam = teams[1];
+
+    await match.save();
+    ctx.body = { success: `Match ${ctx.request.body["id"]} created` }
+});
+
+adminRouter.post("/match/remove", async (ctx: ParameterizedContext<any>, next) => {
+
+    if (!ctx.request.body["id"]) {
+        ctx.body = { error: "Invalid parameters" };
+        return;
+    }
+
+    let match = await Match.findOne({
+        where: {
+            matchID: ctx.request.body["id"]
+        }
+    });
+
+    if (!match) {
+        ctx.body = { error: `No match found`};
+        return;
+    }
+
+    await match.remove();
+    ctx.body = { success: `Match ${ctx.request.body["id"]} removed` };
+
+});
+
+adminRouter.post("/match/edit", async (ctx: ParameterizedContext<any>, next) => {
+
+    if (!ctx.request.body["id"] || !ctx.request.body["schedule"]) {
+        ctx.body = { error: "Invalid parameters" };
+        return;
+    }
+
+    let match = await Match.findOne({
+        where: {
+            matchID: ctx.request.body["id"]
+        }
+    });
+
+    if (!match) {
+        ctx.body = { error: `No match found`};
+        return;
+    }
+
+    match.schedule = ctx.request.body["schedule"]
+    await match.save();
+    ctx.body = { success: `Match ${ctx.request.body["id"]} updated` };
+
+});
 
 export default adminRouter;

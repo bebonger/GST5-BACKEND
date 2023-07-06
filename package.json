@@ -45,7 +45,8 @@
     "reflect-metadata": "^0.1.13",
     "stream-to-blob": "^2.0.1",
     "ts-node-dev": "^2.0.0",
-    "typeorm": "^0.3.15"
+    "typeorm": "^0.3.15",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/koa": "^2.13.6",

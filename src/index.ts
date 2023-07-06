@@ -24,6 +24,8 @@ import discordRouter from "./api/routes/login/discord";
 import userRouter from "./api/routes/users/user";
 import logoutRouter from './api/routes/login/logout';
 import teamsRouter from './api/routes/teams/teams';
+import mappoolRouter from './api/routes/mappool/mappool';
+import matchRouter from './api/routes/matches/matches';
 import notificationsRouter from './api/routes/notifications/notifications';
 import adminRouter from './api/routes/admin/admin';
 
@@ -101,6 +103,12 @@ app.use(Mount("/api/teams", teamsRouter.routes()));
 
 // Notifications
 app.use(Mount("/api/notifications", notificationsRouter.routes()));
+
+// Mappool
+app.use(Mount("/api/mappool", mappoolRouter.routes()));
+
+// Matches
+app.use(Mount("/api/matches", matchRouter.routes()));
 
 // Admin
 app.use(Mount("/api/admin", adminRouter.routes()));

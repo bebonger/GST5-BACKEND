@@ -67,6 +67,14 @@ export class osuAPIV2 {
         return await this.get(`/users/${id}/osu`, accessToken);
     }
 
+    public async getBeatmap(id: number, accessToken: string) {
+        return await this.get(`/beatmaps/${id}`, accessToken);
+    }
+
+    public async getBeatmapAttributes(id: number, body: object, accessToken: string) {
+        return await this.post(`/beatmaps/${id}/attributes`, body, accessToken);
+    }
+
     public async getUsers (ids: number[], accessToken: string) {
         const chunkSize = 50;
         const chunks = [];

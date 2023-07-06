@@ -6,7 +6,8 @@ import { resolve } from "path";
 import { OsuUser, DiscordUser } from "../Models/user"
 import { Invite, Team } from './../Models/team';
 import { Notification } from "../Models/notification";
-import { Match, Schedule, Group } from "../Models/bracket";
+import { Match } from "../Models/bracket";
+import { PoolMap } from "../Models/mappool";
 
 export default {
     type: "postgres",
@@ -24,7 +25,8 @@ export default {
         //`${resolve(__dirname, "Models")}/**/*.js`,
         OsuUser, DiscordUser,
         Invite, Team,
-        Match, Schedule, Group
+        Match,
+        PoolMap
     ],
     cache: {
         duration: 60000,

@@ -16,12 +16,10 @@ export interface MatchInfo {
     redTeam: TeamInfo
     blueTeam: TeamInfo
     schedule: Date | null,
-    result: ResultInfo | null
-}
-
-export interface ResultInfo {
-    redTeam: string,
-    blueTeam: string,
+    result: {
+        redTeamScore: number,
+        blueTeamScore: number,
+    }
 }
 
 export interface GroupInfo {
