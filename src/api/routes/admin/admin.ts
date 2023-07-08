@@ -244,8 +244,8 @@ adminRouter.post("/match/edit", async (ctx: ParameterizedContext<any>, next) => 
     }
 
     if (ctx.request.body["date"] && ctx.request.body["time"]) {
-        const schedule = new Date(`${ctx.request.body["date"]}T${ctx.request.body["time"]}:00`);
-        match.schedule = schedule;
+        match.schedule_date = ctx.request.body["date"];
+        match.schedule_time = ctx.request.body["time"]
     }
 
     if (ctx.request.body["mp_link"]) match.mp_link = ctx.request.body["mp_link"];

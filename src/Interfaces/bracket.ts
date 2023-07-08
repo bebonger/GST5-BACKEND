@@ -15,7 +15,10 @@ export interface MatchInfo {
     stage: MatchStage,
     redTeam: TeamInfo
     blueTeam: TeamInfo
-    schedule: Date | null,
+    schedule: {
+        date: string,
+        time: string,
+    } | null,
     result: {
         redTeamScore: number,
         blueTeamScore: number,

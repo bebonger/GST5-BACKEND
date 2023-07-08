@@ -21,8 +21,11 @@ export class Match extends BaseEntity {
     @JoinColumn({ name: "blue_team" })
     blueTeam!: Team;
 
-    @Column({ type: 'timestamp', nullable: true })
-    schedule!: Date;
+    @Column({ nullable: true })
+    schedule_date: string;
+
+    @Column({ nullable: true })
+    schedule_time: string;
 
     @Column({ nullable: false })
     redTeamScore: number = 0;
@@ -40,7 +43,10 @@ export class Match extends BaseEntity {
             stage: this.stage,
             redTeam: await this.redTeam.getInfo(),
             blueTeam: await this.blueTeam.getInfo(),
-            schedule: this.schedule,
+            schedule: {
+                date: this.schedule_date,
+                time: this.schedule_time,
+            },
             result: {
                 redTeamScore: this.redTeamScore,
                 blueTeamScore: this.blueTeamScore,
