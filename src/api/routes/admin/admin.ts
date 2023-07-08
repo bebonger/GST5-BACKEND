@@ -136,6 +136,7 @@ adminRouter.post("/mappool/insert", async (ctx: ParameterizedContext<any>, next)
     map.BPM = bpm;
     map.HP = hp;
     map.star_rating = star_rating;
+    map.ez_mult = ctx.request.body["ez_mult"] ? Number(ctx.request.body["ez_mult"]) : null;
 
     await map.save();
     ctx.body = { success: `Added '${map.artist} - ${map.title} [${map.difficulty}] as ${map.stage} ${map.mod}${map.slot}'` };
@@ -194,8 +195,8 @@ adminRouter.post("/match/insert", async (ctx: ParameterizedContext<any>, next) =
     match = new Match;
     match.matchID = ctx.request.body["id"];
     match.stage = ctx.request.body["stage"] as MatchStage;
-    match.redTeam = teams[0];
-    match.blueTeam = teams[1];
+    match.redTeam = teams.find(x => x.team_name == ctx.request.body["team1"]);
+    match.blueTeam = teams.find(x => x.team_name == ctx.request.body["team2"]);
 
     await match.save();
     ctx.body = { success: `Match ${ctx.request.body["id"]} created` }
@@ -226,7 +227,7 @@ adminRouter.post("/match/remove", async (ctx: ParameterizedContext<any>, next) =
 
 adminRouter.post("/match/edit", async (ctx: ParameterizedContext<any>, next) => {
 
-    if (!ctx.request.body["id"] || !ctx.request.body["schedule"]) {
+    if (!ctx.request.body["id"]) {
         ctx.body = { error: "Invalid parameters" };
         return;
     }
@@ -242,7 +243,13 @@ adminRouter.post("/match/edit", async (ctx: ParameterizedContext<any>, next) => 
         return;
     }
 
-    match.schedule = ctx.request.body["schedule"]
+    if (ctx.request.body["date"] && ctx.request.body["time"]) {
+        const schedule = new Date(`${ctx.request.body["date"]}T${ctx.request.body["time"]}:00`);
+        match.schedule = schedule;
+    }
+
+    if (ctx.request.body["mp_link"]) match.mp_link = ctx.request.body["mp_link"];
+
     await match.save();
     ctx.body = { success: `Match ${ctx.request.body["id"]} updated` };
 

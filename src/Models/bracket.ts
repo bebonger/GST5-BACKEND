@@ -21,14 +21,17 @@ export class Match extends BaseEntity {
     @JoinColumn({ name: "blue_team" })
     blueTeam!: Team;
 
-    @Column({ nullable: true })
-    schedule!: string;
+    @Column({ type: 'timestamp', nullable: true })
+    schedule!: Date;
 
     @Column({ nullable: false })
     redTeamScore: number = 0;
 
     @Column({ nullable: false })
     blueTeamScore: number = 0;
+
+    @Column({ nullable: true})
+    mp_link: string;
 
     public getInfo = async function(): Promise<MatchInfo> {
 
@@ -41,7 +44,8 @@ export class Match extends BaseEntity {
             result: {
                 redTeamScore: this.redTeamScore,
                 blueTeamScore: this.blueTeamScore,
-            }
+            },
+            mp_link: this.mp_link
         };
 
         return info;

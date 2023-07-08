@@ -19,7 +19,8 @@ export interface MatchInfo {
     result: {
         redTeamScore: number,
         blueTeamScore: number,
-    }
+    },
+    mp_link: string
 }
 
 export interface GroupInfo {

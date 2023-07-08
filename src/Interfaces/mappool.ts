@@ -31,6 +31,7 @@ export interface MapInfo {
         CS: number,
         AR: number,
         OD: number,
-        HP: number
+        HP: number,
+        ez_mult: number
     }
 }

@@ -63,6 +63,9 @@ export class PoolMap extends BaseEntity {
     @Column('decimal',{ nullable: false })
     HP!: number;
 
+    @Column('decimal',{ nullable: true })
+    ez_mult!: number;
+
     public getInfo = async function(): Promise<MapInfo> {
         const info: MapInfo = {
             stage: this.stage,
@@ -84,7 +87,8 @@ export class PoolMap extends BaseEntity {
                 CS: this.CS,
                 AR: this.AR,
                 OD: this.OD,
-                HP: this.HP
+                HP: this.HP,
+                ez_mult: this.ez_mult
             }
         }
 
