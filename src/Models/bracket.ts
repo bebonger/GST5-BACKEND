@@ -36,6 +36,9 @@ export class Match extends BaseEntity {
     @Column({ nullable: true})
     mp_link: string;
 
+    @Column({ nullable: true})
+    referee: string;
+
     public getInfo = async function(): Promise<MatchInfo> {
 
         const info: MatchInfo = {
@@ -51,7 +54,8 @@ export class Match extends BaseEntity {
                 redTeamScore: this.redTeamScore,
                 blueTeamScore: this.blueTeamScore,
             },
-            mp_link: this.mp_link
+            mp_link: this.mp_link,
+            referee: this.referee
         };
 
         return info;
