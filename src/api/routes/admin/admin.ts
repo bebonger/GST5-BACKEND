@@ -250,6 +250,10 @@ adminRouter.post("/match/edit", async (ctx: ParameterizedContext<any>, next) => 
 
     if (ctx.request.body["mp_link"]) match.mp_link = ctx.request.body["mp_link"];
     if (ctx.request.body["referee"]) match.referee = ctx.request.body["referee"];
+    if (ctx.request.body["scores"]) {
+        match.redTeamScore = Number(ctx.request.body["scores"].red);
+        match.blueTeamScore = Number(ctx.request.body["scores"].blue);
+    };
     
     await match.save();
     ctx.body = { success: `Match ${ctx.request.body["id"]} updated` };
