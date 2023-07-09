@@ -90,7 +90,7 @@ adminRouter.post("/mappool/insert", async (ctx: ParameterizedContext<any>, next)
         return;
     }
  
-    let url = beatmap.url;
+    let url = `https://osu.ppy.sh/b/${ctx.request.body["id"]}`;
     let cover = beatmap.beatmapset.covers.cover;
     let artist = beatmap.beatmapset.artist;
     let title = beatmap.beatmapset.title;
