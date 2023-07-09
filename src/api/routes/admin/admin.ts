@@ -97,7 +97,7 @@ adminRouter.post("/mappool/insert", async (ctx: ParameterizedContext<any>, next)
     let difficulty = beatmap.version;
     let mapper = beatmap.beatmapset.creator;
 
-    let length = (ctx.request.body["mod"] == "DT") ? beatmap.total_length * 1.5 : beatmap.total_length;
+    let length = (ctx.request.body["mod"] == "DT") ? beatmap.total_length * 0.666666667 : beatmap.total_length;
     let ar = Number(attributes.attributes.approach_rate.toFixed(1));
     let od = Number(attributes.attributes.overall_difficulty.toFixed(1));
     let cs = (ctx.request.body["mod"] == "HR") ? (beatmap.cs*1.3>10 ? 10 : Number((beatmap.cs*1.3).toFixed(1))) : beatmap.cs;
