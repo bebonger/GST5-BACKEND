@@ -1,6 +1,6 @@
 import Router from "@koa/router";
 import { ParameterizedContext } from "koa";
-import { isHeadStaff, isLoggedInDiscord } from "../../../middleware";
+import { isHeadStaff, isStaff, isLoggedInDiscord } from "../../../middleware";
 import { Match } from "../../../Models/bracket";
 import { OsuUser } from "../../../Models/user";
 import axios from "axios";
@@ -13,14 +13,13 @@ import { Team } from "../../../Models/team";
 const adminRouter = new Router();
 
 adminRouter.use(isLoggedInDiscord);
-adminRouter.use(isHeadStaff);
 
 
 async function delayExecution(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-adminRouter.post("/user/refresh", async (ctx: ParameterizedContext<any>, next) => {
+adminRouter.post("/user/refresh", isHeadStaff, async (ctx: ParameterizedContext<any>, next) => {
     // 1: Retrieve all users from postgres
     const users = await OsuUser.find();
     let userIds = [];
@@ -59,7 +58,7 @@ adminRouter.post("/user/refresh", async (ctx: ParameterizedContext<any>, next) =
     }
 });
 
-adminRouter.post("/mappool/insert", async (ctx: ParameterizedContext<any>, next) => {
+adminRouter.post("/mappool/insert", isHeadStaff, async (ctx: ParameterizedContext<any>, next) => {
 
     console.log(ctx.request.body);
 
@@ -143,7 +142,7 @@ adminRouter.post("/mappool/insert", async (ctx: ParameterizedContext<any>, next)
 
 });
   
-adminRouter.post("/mappool/remove", async (ctx: ParameterizedContext<any>, next) => {
+adminRouter.post("/mappool/remove", isHeadStaff, async (ctx: ParameterizedContext<any>, next) => {
     console.log(ctx.request.body);
 
     const map = await PoolMap.findOne({
@@ -163,7 +162,7 @@ adminRouter.post("/mappool/remove", async (ctx: ParameterizedContext<any>, next)
     ctx.body = { success: `Removed '${map.artist} - ${map.title} [${map.difficulty}] from ${map.stage} ${map.mod}${map.slot}'` }
 });
 
-adminRouter.post("/match/insert", async (ctx: ParameterizedContext<any>, next) => {
+adminRouter.post("/match/insert", isHeadStaff, async (ctx: ParameterizedContext<any>, next) => {
     if (!ctx.request.body["id"] || !ctx.request.body["stage"] || !ctx.request.body["team1"] || !ctx.request.body["team2"]) {
         ctx.body = { error: "Invalid parameters" };
         return;
@@ -202,7 +201,7 @@ adminRouter.post("/match/insert", async (ctx: ParameterizedContext<any>, next) =
     ctx.body = { success: `Match ${ctx.request.body["id"]} created` }
 });
 
-adminRouter.post("/match/remove", async (ctx: ParameterizedContext<any>, next) => {
+adminRouter.post("/match/remove", isHeadStaff, async (ctx: ParameterizedContext<any>, next) => {
 
     if (!ctx.request.body["id"]) {
         ctx.body = { error: "Invalid parameters" };
@@ -225,7 +224,7 @@ adminRouter.post("/match/remove", async (ctx: ParameterizedContext<any>, next) =
 
 });
 
-adminRouter.post("/match/edit", async (ctx: ParameterizedContext<any>, next) => {
+adminRouter.post("/match/edit", isStaff, async (ctx: ParameterizedContext<any>, next) => {
 
     if (!ctx.request.body["id"]) {
         ctx.body = { error: "Invalid parameters" };
