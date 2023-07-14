@@ -109,4 +109,4 @@ async function CreateNotification (ctx: ParameterizedContext, next: Next): Promi
     notification.save();
 }
 
-export { isLoggedIn, isLoggedInDiscord, IsEligibleToPlay, CreateNotification, hasRole, isHeadStaff };
+export { isLoggedIn, isLoggedInDiscord, IsEligibleToPlay, CreateNotification, hasRole, isHeadStaff, isStaff };
