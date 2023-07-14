@@ -69,6 +69,7 @@ function hasRole (role: string) {
 }
 
 const isHeadStaff = hasRole("headStaff");
+const isStaff = hasRole("staff");
 
 async function IsEligibleToPlay (ctx: ParameterizedContext, next: Next): Promise<void> {
     

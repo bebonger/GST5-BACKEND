@@ -83,7 +83,7 @@ export class OsuUser extends BaseEntity {
             },
             staff: {
                 headStaff: member ? config.discord.roles.headStaff.some(r => member!.roles.cache.has(r)) : false,
-                staff: member ? member.roles.cache.has(config.discord.roles.staff) : false,
+                staff: member ? config.discord.roles.staff.some(r => member!.roles.cache.has(r)) : false,
             }
         }
         return info;
