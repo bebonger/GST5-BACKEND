@@ -1,10 +1,26 @@
 import { ParameterizedContext } from "koa";
 import Router from "@koa/router";
 import { Match } from "../../../Models/bracket";
+import { SheetsClient } from "../../../sheets";
 
 const matchRouter = new Router();
 
-matchRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {   
+matchRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
+    const matches = await SheetsClient.getMatches();
+
+    let matchesByStage = {};
+    matches.forEach(match => {
+        const stage = match.stage;
+        if (!matchesByStage[stage]) {
+            matchesByStage[stage] = [];
+        }
+
+        matchesByStage[stage].push(match);
+    });
+    
+    ctx.body = matchesByStage;
+
+    /*
     const matches = await Match.find({
         relations: ['redTeam', 'blueTeam', 'redTeam.player1', 'redTeam.player2',  'blueTeam.player1', 'blueTeam.player2']
     });
@@ -39,9 +55,8 @@ matchRouter.get("/", async (ctx: ParameterizedContext<any>, next) => {
             }
         });
     }
-
-    console.log(matchesByStage);
     ctx.body = matchesByStage;
+    */
 });
 
 export default matchRouter;

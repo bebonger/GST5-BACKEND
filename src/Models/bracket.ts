@@ -54,6 +54,7 @@ export class Match extends BaseEntity {
                 redTeamScore: this.redTeamScore,
                 blueTeamScore: this.blueTeamScore,
             },
+            matchType: null,
             mp_link: this.mp_link,
             referee: this.referee
         };

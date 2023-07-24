@@ -11,20 +11,39 @@ export enum MatchStage {
 }
 
 export interface MatchInfo {
-    matchID: string,
-    stage: MatchStage,
-    redTeam: TeamInfo
-    blueTeam: TeamInfo
+    matchID: string;
+    stage: MatchStage;
+    redTeam: TeamInfo;
+    blueTeam: TeamInfo;
     schedule: {
-        date: string,
-        time: string,
-    } | null,
+        date: string;
+        time: string;
+    } | null;
     result: {
-        redTeamScore: number,
-        blueTeamScore: number,
+        redTeamScore: number;
+        blueTeamScore: number;
     },
-    mp_link: string
-    referee: string,
+    matchType: string;
+    mp_link: string;
+    referee: string;
+}
+
+export interface SimpleMatchInfo {
+    matchID: string;
+    stage: MatchStage;
+    redTeam: string;
+    blueTeam: string;
+    schedule: {
+        date: string;
+        time: string;
+    } | null;
+    result: {
+        redTeamScore: number;
+        blueTeamScore: number;
+    },
+    matchType: string;
+    mp_link: string;
+    referee: string;
 }
 
 export interface GroupInfo {
